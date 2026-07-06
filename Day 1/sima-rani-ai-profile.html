@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Personality Profile — Sima Rani</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0f14;
+    --panel:#111823;
+    --panel-2:#0e141c;
+    --line: rgba(148,178,204,0.14);
+    --text:#e7eef5;
+    --sub:#8fa3b8;
+    --cyan:#5fd4ff;
+    --violet:#b39dff;
+    --amber:#ffc266;
+    --green:#5be6a6;
+    --red:#ff8080;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background: radial-gradient(1200px 600px at 15% -10%, #142033 0%, transparent 60%),
+                radial-gradient(1000px 700px at 100% 0%, #1a1430 0%, transparent 55%),
+                var(--bg);
+    color:var(--text);
+    font-family:'Inter', sans-serif;
+    padding: 28px 16px 60px;
+  }
+  .mono{ font-family:'JetBrains Mono', monospace; }
+  .display{ font-family:'Space Grotesk', sans-serif; }
+
+  .wrap{ max-width: 1120px; margin: 0 auto; }
+
+  /* window chrome — signature motif: every block is a "browser tab" */
+  .win{
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .win-bar{
+    display:flex; align-items:center; gap:8px;
+    padding: 9px 14px;
+    background: var(--panel-2);
+    border-bottom: 1px solid var(--line);
+  }
+  .dot{ width:9px; height:9px; border-radius:50%; }
+  .dot.r{ background:#ff5f57; } .dot.y{ background:#febc2e; } .dot.g{ background:#28c840; }
+  .win-tab{
+    margin-left: 10px;
+    font-size: 11.5px;
+    color: var(--sub);
+    letter-spacing:.02em;
+  }
+  .win-body{ padding: 22px 24px; }
+
+  /* HERO */
+  .hero{ margin-bottom: 22px; }
+  .hero .win-body{ padding: 30px 30px 26px; }
+  .hero-top{ display:flex; align-items:flex-start; justify-content:space-between; gap:20px; flex-wrap:wrap; }
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:11.5px; letter-spacing:.14em; text-transform:uppercase;
+    color: var(--cyan); font-family:'JetBrains Mono', monospace;
+  }
+  .pulse{ width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 0 3px rgba(91,230,166,.15); }
+  h1.title{
+    font-size: clamp(36px, 6vw, 58px);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    margin: 10px 0 8px;
+    background: linear-gradient(120deg, #ffffff 30%, #9fd8ff 70%, #b39dff 100%);
+    -webkit-background-clip: text; background-clip:text; color:transparent;
+  }
+  .subline{ color: var(--sub); font-size: 15px; }
+  .subline b{ color: var(--text); font-weight:600; }
+
+  .hero-grid{ display:flex; gap:28px; margin-top:22px; flex-wrap:wrap; }
+  .avatar-box{ flex: 0 0 260px; }
+  .quote-box{ flex: 1 1 380px; min-width: 280px; }
+
+  /* Illustrated avatar, built in CSS/SVG — not a photo, a vector persona */
+  .avatar-frame{
+    width: 100%; aspect-ratio: 4/5;
+    border-radius: 14px;
+    background: linear-gradient(180deg, #0d1520, #0a1018 60%);
+    border: 1px solid var(--line);
+    position: relative; overflow:hidden;
+    display:flex; align-items:flex-end; justify-content:center;
+  }
+  .avatar-frame svg{ width:88%; height:92%; }
+  .avatar-tag{
+    position:absolute; top:10px; left:10px;
+    font-size:10px; color:var(--sub); font-family:'JetBrains Mono',monospace;
+    background:rgba(0,0,0,.35); padding:3px 8px; border-radius:20px; border:1px solid var(--line);
+  }
+
+  blockquote{
+    font-family:'Space Grotesk', sans-serif;
+    font-size: 18px; line-height:1.55; font-weight:500;
+    color:#dfe9f2; font-style: italic;
+    border-left: 2px solid var(--cyan);
+    padding-left: 18px;
+  }
+  .attrib{ margin-top:14px; font-size:14px; color:var(--sub); }
+  .attrib b{ color:var(--text); }
+
+  .chips{ display:flex; flex-wrap:wrap; gap:8px; margin-top:16px; }
+  .chip{
+    font-size:12px; padding:5px 12px; border-radius:20px;
+    border:1px solid var(--line); color:var(--sub);
+    font-family:'JetBrains Mono', monospace;
+  }
+  .chip.on{ color:var(--cyan); border-color: rgba(95,212,255,.35); background: rgba(95,212,255,.06);}
+
+  .meta-row{ display:flex; gap:22px; flex-wrap:wrap; margin-top:20px; padding-top:18px; border-top:1px solid var(--line); }
+  .meta{ font-size:13px; color:var(--sub); display:flex; gap:8px; align-items:center; }
+  .meta b{ color: var(--text); }
+
+  /* GRID SECTIONS */
+  .grid{ display:grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 18px; }
+  .grid.two{ grid-template-columns: 1.1fr 1fr; }
+  @media (max-width: 900px){ .grid, .grid.two{ grid-template-columns: 1fr; } .hero-grid{ flex-direction:column; } .avatar-box{ flex-basis:auto; max-width:280px; } }
+
+  h3.section-title{
+    font-family:'Space Grotesk', sans-serif; font-size:14px; letter-spacing:.02em;
+    color: var(--cyan); margin-bottom: 14px; text-transform: uppercase; font-size:12.5px; letter-spacing:.1em;
+  }
+
+  .stat-row{ display:flex; align-items:flex-start; gap:14px; margin-bottom:16px; }
+  .stat-row:last-child{ margin-bottom:0; }
+  .stat-num{ font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:26px; width:52px; flex-shrink:0; }
+  .stat-num.c{ color:var(--cyan);} .stat-num.v{ color:var(--violet);} .stat-num.a{ color:var(--amber);} .stat-num.g{ color:var(--green);}
+  .stat-label{ font-size:13.5px; font-weight:600; }
+  .stat-desc{ font-size:12.5px; color:var(--sub); margin-top:2px; }
+
+  .code-line{ font-family:'JetBrains Mono', monospace; font-size:13px; color: var(--sub); margin-bottom:14px; line-height:1.6; }
+  .code-line:last-child{ margin-bottom:0; }
+  .code-line .kw{ color: var(--violet); }
+  .code-line .fn{ color: var(--cyan); }
+  .code-line .str{ color: var(--green); }
+  .code-line .cmt{ color: #5a6b7d; }
+  .code-line .body-txt{ font-family:'Inter',sans-serif; color: var(--text); font-size:13.5px; display:block; margin-top:3px; }
+
+  .list-check{ list-style:none; }
+  .list-check li{ font-size:13.5px; padding: 7px 0; display:flex; gap:9px; align-items:flex-start; border-bottom: 1px dashed var(--line); }
+  .list-check li:last-child{ border-bottom:none; }
+  .tick{ color: var(--green); font-family:'JetBrains Mono',monospace; flex-shrink:0; }
+  .tick.x{ color: var(--red); }
+
+  .col-2{ display:grid; grid-template-columns:1fr 1fr; gap: 0 24px; }
+  @media (max-width:600px){ .col-2{ grid-template-columns:1fr; } }
+
+  .diff-item{ font-size:13.5px; margin-bottom:10px; padding-left:16px; position:relative; color:#d7e2ec; }
+  .diff-item::before{ content:"→"; position:absolute; left:0; color:var(--cyan); }
+  .diff-tagline{
+    margin-top: 14px; padding-top:14px; border-top:1px solid var(--line);
+    font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:14px; color: var(--amber);
+  }
+
+  .progress-item{ margin-bottom: 14px; }
+  .progress-item:last-child{ margin-bottom:0; }
+  .progress-top{ display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:6px; }
+  .progress-top span:first-child{ color: var(--text); font-weight:500; }
+  .progress-top span:last-child{ color: var(--sub); font-family:'JetBrains Mono',monospace; }
+  .bar{ height:6px; border-radius:4px; background: rgba(255,255,255,.06); overflow:hidden; }
+  .bar-fill{ height:100%; border-radius:4px; background: linear-gradient(90deg, var(--cyan), var(--violet)); }
+
+  .career-grid{ display:grid; grid-template-columns: repeat(3, 1fr); gap:14px; }
+  @media (max-width:700px){ .career-grid{ grid-template-columns: 1fr 1fr; } }
+  .career-card{
+    background: var(--panel-2); border:1px solid var(--line); border-radius:10px; padding:14px;
+  }
+  .career-card .ico{ font-size:18px; margin-bottom:8px; }
+  .career-card h4{ font-family:'Space Grotesk',sans-serif; font-size:13.5px; margin-bottom:5px; }
+  .career-card p{ font-size:11.5px; color:var(--sub); line-height:1.4; }
+
+  .footer-bar{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; }
+  .dna{ font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--sub); letter-spacing:.05em; }
+  .title-tag{ font-family:'Space Grotesk',sans-serif; }
+  .title-tag .name{ font-size:22px; font-weight:700; background:linear-gradient(120deg,#fff,#9fd8ff); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .title-tag .sub{ font-size:12.5px; color:var(--sub); font-style: italic; }
+  .day-badge{ text-align:right; font-size:11.5px; color:var(--sub); font-family:'JetBrains Mono',monospace; }
+  .day-badge b{ color:var(--cyan); display:block; font-size:14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HERO -->
+  <div class="win hero">
+    <div class="win-bar">
+      <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+      <div class="win-tab mono">profile.exe — ai-personality</div>
+    </div>
+    <div class="win-body">
+      <div class="hero-top">
+        <div>
+          <span class="eyebrow"><span class="pulse"></span>AI PERSONALITY PROFILE · ACTIVE</span>
+          <h1 class="title display">THE VETERAN<br>ARCHITECT</h1>
+          <div class="subline">Sima Rani &nbsp;•&nbsp; <b>Full-Stack Web Developer</b> &nbsp;•&nbsp; 45 years of craft, decades of code</div>
+        </div>
+      </div>
+
+      <div class="chips">
+        <span class="chip on">STEADY BUILDER</span>
+        <span class="chip on">PATTERN LIBRARY</span>
+        <span class="chip">PRACTICAL FIRST</span>
+        <span class="chip">MENTOR ENERGY</span>
+      </div>
+
+      <div class="hero-grid">
+        <div class="avatar-box">
+          <div class="avatar-frame">
+            <span class="avatar-tag">SIMA_RANI.VIEW</span>
+            <svg viewBox="0 0 260 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- desk -->
+              <rect x="0" y="270" width="260" height="50" fill="#0a0f16"/>
+              <rect x="10" y="262" width="240" height="10" rx="3" fill="#1b2836"/>
+              <!-- monitor -->
+              <rect x="60" y="150" width="140" height="95" rx="6" fill="#0d1620" stroke="#2a3b4d" stroke-width="2"/>
+              <rect x="70" y="160" width="120" height="75" rx="2" fill="#0a2233"/>
+              <rect x="78" y="168" width="60" height="4" fill="#5fd4ff" opacity="0.8"/>
+              <rect x="78" y="178" width="90" height="3" fill="#b39dff" opacity="0.6"/>
+              <rect x="78" y="186" width="45" height="3" fill="#5be6a6" opacity="0.6"/>
+              <rect x="78" y="194" width="75" height="3" fill="#8fa3b8" opacity="0.5"/>
+              <rect x="78" y="202" width="55" height="3" fill="#ffc266" opacity="0.5"/>
+              <rect x="78" y="210" width="88" height="3" fill="#5fd4ff" opacity="0.4"/>
+              <rect x="125" y="245" width="10" height="10" fill="#2a3b4d"/>
+              <rect x="105" y="253" width="50" height="4" rx="2" fill="#1b2836"/>
+              <!-- side monitor -->
+              <rect x="205" y="175" width="45" height="60" rx="4" fill="#0d1620" stroke="#2a3b4d" stroke-width="2"/>
+              <rect x="210" y="182" width="35" height="46" fill="#0a2233"/>
+              <rect x="213" y="188" width="20" height="3" fill="#b39dff" opacity="0.7"/>
+              <rect x="213" y="195" width="26" height="3" fill="#5fd4ff" opacity="0.5"/>
+              <rect x="213" y="202" width="14" height="3" fill="#5be6a6" opacity="0.6"/>
+              <!-- person silhouette -->
+              <ellipse cx="115" cy="140" rx="26" ry="28" fill="#1a2a3a"/>
+              <path d="M115 108 q26 0 26 30 q0 14 -8 20 q10 4 10 16 h-56 q0 -12 10 -16 q-8 -6 -8 -20 q0 -30 26 -30z" fill="#22344a"/>
+              <path d="M89 128 q4 -22 26 -22 q22 0 26 22" stroke="#3a4f68" stroke-width="3" fill="none"/>
+              <rect x="72" y="184" width="86" height="66" rx="10" fill="#16324a"/>
+              <rect x="72" y="184" width="86" height="20" rx="10" fill="#1c3f5c"/>
+              <rect x="98" y="228" width="34" height="8" rx="4" fill="#0d1620"/>
+              <circle cx="102" cy="232" r="1.6" fill="#5fd4ff"/>
+              <circle cx="109" cy="232" r="1.6" fill="#5fd4ff"/>
+              <circle cx="116" cy="232" r="1.6" fill="#5fd4ff"/>
+              <circle cx="123" cy="232" r="1.6" fill="#5fd4ff"/>
+              <!-- glasses -->
+              <circle cx="105" cy="118" r="7" fill="none" stroke="#5fd4ff" stroke-width="2"/>
+              <circle cx="125" cy="118" r="7" fill="none" stroke="#5fd4ff" stroke-width="2"/>
+              <line x1="112" y1="118" x2="118" y2="118" stroke="#5fd4ff" stroke-width="2"/>
+              <!-- plant -->
+              <ellipse cx="35" cy="255" rx="14" ry="8" fill="#16232f"/>
+              <path d="M35 250 q-8 -18 -3 -28 M35 250 q8 -20 2 -32 M35 250 q0 -22 -10 -30" stroke="#5be6a6" stroke-width="3" fill="none" opacity="0.7"/>
+              <!-- lamp -->
+              <path d="M220 60 L235 95" stroke="#3a4f68" stroke-width="3"/>
+              <ellipse cx="220" cy="58" rx="14" ry="7" fill="#2a3b4d"/>
+              <ellipse cx="220" cy="60" rx="9" ry="4" fill="#ffc266" opacity="0.5"/>
+              <!-- floating code panel -->
+              <rect x="150" y="255" width="70" height="30" rx="6" fill="#0a2233" stroke="#5fd4ff" stroke-width="1" opacity="0.9"/>
+              <rect x="157" y="262" width="30" height="3" fill="#5fd4ff"/>
+              <rect x="157" y="268" width="45" height="3" fill="#b39dff" opacity="0.7"/>
+              <rect x="157" y="274" width="20" height="3" fill="#5be6a6"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="quote-box">
+          <blockquote>
+            "She's not chasing every new model release — she's already built the muscle memory of what actually ships. Twenty-plus years of debugging other people's messes taught her that the fastest AI workflow is the one that survives contact with a real deadline. She doesn't prompt to impress. She prompts to finish."
+          </blockquote>
+          <div class="attrib">— <b>Sima Rani</b>, The Veteran Architect</div>
+
+          <div class="meta-row">
+            <div class="meta">📍 <b>India</b></div>
+            <div class="meta">🎂 <b>45</b> years old</div>
+            <div class="meta">💻 <b>Full-Stack</b> Web Development</div>
+            <div class="meta">🧠 Practical, ship-focused mindset</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW: working style / learning style / core stats -->
+  <div class="grid">
+    <div class="win">
+      <div class="win-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><div class="win-tab mono">working-style.js</div></div>
+      <div class="win-body">
+        <h3 class="section-title">AI Working Style</h3>
+        <div class="code-line"><span class="kw">const</span> <span class="fn">howYouPrompt</span> = <span class="str">"give it the constraint first"</span>;
+          <span class="body-txt">You lead with the real-world limitation — browser support, legacy code, deadline — before asking for the solution.</span>
+        </div>
+        <div class="code-line"><span class="kw">const</span> <span class="fn">howYouReview</span> = <span class="str">"read every line before shipping"</span>;
+          <span class="body-txt">Decades of debugging built a habit AI can't replace: you never paste code you haven't understood.</span>
+        </div>
+        <div class="code-line"><span class="kw">const</span> <span class="fn">yourFlow</span> = <span class="str">"fix, refactor, teach"</span>;
+          <span class="body-txt">You use AI most for troubleshooting fast, tidying old code, and explaining concepts simply.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="win">
+      <div class="win-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><div class="win-tab mono">learning-style.js</div></div>
+      <div class="win-body">
+        <h3 class="section-title">Learning & Decision-Making</h3>
+        <div class="code-line"><span class="kw">function</span> <span class="fn">decide</span>(problem) {
+          <span class="body-txt">Experience-first: you compare new AI suggestions against what you've already seen fail in production.</span>
+        </div>
+        <div class="code-line">&nbsp;&nbsp;<span class="kw">return</span> <span class="str">"tested, not trendy"</span>;
+          <span class="body-txt">You adopt new tools once they've proven stable — not on day one, but not too late either.</span>
+        </div>
+        <div class="code-line">}
+          <span class="body-txt">Learning by rebuilding: you understand a concept by refactoring something you already know.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="win">
+      <div class="win-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><div class="win-tab mono">core-stats.json</div></div>
+      <div class="win-body">
+        <h3 class="section-title">Core Stats</h3>
+        <div class="stat-row"><div class="stat-num c">94</div><div><div class="stat-label">CODE JUDGMENT</div><div class="stat-desc">Knows what "good" looks like without needing to be told</div></div></div>
+        <div class="stat-row"><div class="stat-num v">88</div><div><div class="stat-label">DEBUG INSTINCT</div><div class="stat-desc">Finds root cause faster than most AI suggestions</div></div></div>
+        <div class="stat-row"><div class="stat-num a">81</div><div><div class="stat-label">MENTOR ENERGY</div><div class="stat-desc">Explains AI output so juniors actually learn from it</div></div></div>
+        <div class="stat-row"><div class="stat-num g">63</div><div><div class="stat-label">TOOL ADOPTION SPEED</div><div class="stat-desc">Deliberately not first-in-line for every new release</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW: type of user / what makes different / strengths weaknesses -->
+  <div class="grid">
+    <div class="win">
+      <div class="win-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><div class="win-tab mono">user-type.md</div></div>
+      <div class="win-body">
+        <h3 class="section-title">What Type of AI User</h3>
+        <div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:19px; color:var(--cyan); margin-bottom:6px;">THE PRAGMATIC CRAFTSPERSON</div>
+        <p style="font-size:13px; color:var(--sub); line-height:1.5; margin-bottom:14px;">You don't use AI to replace your judgment — you use it to move faster through the parts of the job you've already mastered.</p>
+        <div class="chips">
+          <span class="chip on">Debugger</span>
+          <span class="chip on">Refactorer</span>
+          <span class="chip">Mentor</span>
+          <span class="chip">Realist</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="win">
+      <div class="win-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><div class="win-tab mono">different.md</div></div>
+      <div class="win-body">
+        <h3 class="section-title">What Makes You Different</h3>
+        <div class="diff-item">You've shipped through multiple tech eras — jQuery to React to AI copilots — so you don't panic-chase every new tool.</div>
+        <div class="diff-item">You ask AI "why," not just "what" — you want the reasoning, because you'll be maintaining this code in two years.</div>
+        <div class="diff-item">You use AI as a second pair of eyes, not a replacement for your own review process.</div>
+        <div class="diff-tagline">You've seen enough hype cycles to know craft outlasts trend.</div>
+      </div>
+    </div>
+
+    <div class="win">
+      <div class="win-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><div class="win-tab mono">strengths.log</div></div>
+      <div class="win-body">
+        <h3 class="section-title">Strengths & Weaknesses</h3>
+        <div class="col-2">
+          <ul class="list-check">
+            <li><span class="tick">✓</span>Deep debugging instinct</li>
+            <li><span class="tick">✓</span>Production-grade judgment</li>
+            <li><span class="tick">✓</span>Clear technical communication</li>
+            <li><span class="tick">✓</span>Steady under deadline pressure</li>
+          </ul>
+          <ul class="list-check">
+            <li><span class="tick x">⚠</span>Slower to trust brand-new tools</li>
+            <li><span class="tick x">⚠</span>Can over-verify AI output</li>
+            <li><span class="tick x">⚠</span>Prompting style still catching up to fluency</li>
+            <li><span class="tick x">⚠</span>Underuses AI for ideation, not just fixing</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW: careers / elite progress -->
+  <div class="grid two">
+    <div class="win">
+      <div class="win-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><div class="win-tab mono">career-paths.json</div></div>
+      <div class="win-body">
+        <h3 class="section-title">Best Future Career Paths</h3>
+        <div class="career-grid">
+          <div class="career-card"><div class="ico">🧭</div><h4>Tech Lead / Architect</h4><p>Guide teams through modern stacks with real production wisdom.</p></div>
+          <div class="career-card"><div class="ico">🎓</div><h4>Dev Educator</h4><p>Teach AI-assisted development to teams still catching up.</p></div>
+          <div class="career-card"><div class="ico">🛠️</div><h4>Legacy Modernization Lead</h4><p>Bridge old systems into modern, AI-assisted workflows.</p></div>
+          <div class="career-card"><div class="ico">🔎</div><h4>Code Quality Consultant</h4><p>Audit AI-generated code for teams moving too fast.</p></div>
+          <div class="career-card"><div class="ico">🧩</div><h4>Full-Stack Freelancer</h4><p>High-trust client work where reliability beats speed.</p></div>
+          <div class="career-card"><div class="ico">📐</div><h4>Technical PM</h4><p>Translate between engineering reality and business goals.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="win">
+      <div class="win-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><div class="win-tab mono">become-elite.sh</div></div>
+      <div class="win-body">
+        <h3 class="section-title">To Become Elite With AI</h3>
+        <div class="progress-item"><div class="progress-top"><span>Use AI for ideation, not just fixes</span><span>55%</span></div><div class="bar"><div class="bar-fill" style="width:55%"></div></div></div>
+        <div class="progress-item"><div class="progress-top"><span>Build reusable prompt library</span><span>50%</span></div><div class="bar"><div class="bar-fill" style="width:50%"></div></div></div>
+        <div class="progress-item"><div class="progress-top"><span>Trust AI a bit faster on low-risk tasks</span><span>45%</span></div><div class="bar"><div class="bar-fill" style="width:45%"></div></div></div>
+        <div class="progress-item"><div class="progress-top"><span>Mentor others in AI-assisted dev</span><span>65%</span></div><div class="bar"><div class="bar-fill" style="width:65%"></div></div></div>
+        <div class="progress-item"><div class="progress-top"><span>Experiment before waiting for proof</span><span>40%</span></div><div class="bar"><div class="bar-fill" style="width:40%"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="win">
+    <div class="win-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><div class="win-tab mono">index.html</div></div>
+    <div class="win-body footer-bar">
+      <div class="dna">CURIOUS · METHODICAL · RELIABLE · UNHURRIED-BY-HYPE</div>
+      <div class="title-tag">
+        <div class="name display">THE VETERAN ARCHITECT</div>
+        <div class="sub">Sima Rani — Ships what lasts.</div>
+      </div>
+      <div class="day-badge"><b>20+ YRS</b>SHIPPING PRODUCTION CODE</div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
