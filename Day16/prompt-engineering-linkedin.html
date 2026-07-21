@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Prompt Engineering — LinkedIn Post</title>
+<style>
+  :root{
+    --cream:#F6F1E7;
+    --beige:#E7DAC2;
+    --beige-dark:#D8C6A3;
+    --brown-deep:#3B2A1E;
+    --brown-mid:#6B4A32;
+    --brown-soft:#9C7B54;
+    --white:#FFFDF9;
+    --muted:#8A7A63;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{
+    background:#EDE7DA;
+  }
+  .stage{
+    width:1080px;
+    height:1080px;
+    position:relative;
+    background:
+      radial-gradient(circle at 88% 8%, rgba(155,123,84,0.10), transparent 40%),
+      radial-gradient(circle at 6% 92%, rgba(107,74,50,0.08), transparent 45%),
+      var(--cream);
+    font-family: Georgia, 'Times New Roman', serif;
+    color: var(--brown-deep);
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+  }
+
+  /* faint background node pattern */
+  .stage::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background-image:
+      radial-gradient(circle, rgba(107,74,50,0.06) 1.5px, transparent 1.5px);
+    background-size: 46px 46px;
+    opacity:0.55;
+    pointer-events:none;
+  }
+
+  .frame{
+    position:relative;
+    z-index:2;
+    padding: 56px 72px 44px 72px;
+    display:flex;
+    flex-direction:column;
+    height:100%;
+  }
+
+  /* ---------- HEADER ---------- */
+  .eyebrow-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:18px;
+  }
+  .eyebrow-dot{
+    width:8px; height:8px; border-radius:50%;
+    background:var(--brown-mid);
+  }
+  .eyebrow{
+    font-family: Helvetica, Arial, sans-serif;
+    font-size:15px;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    color:var(--brown-mid);
+    font-weight:700;
+  }
+  .eyebrow span{ color:var(--brown-soft); font-weight:400; }
+
+  h1.title{
+    font-size:76px;
+    line-height:1.02;
+    color:var(--brown-deep);
+    font-weight:400;
+    letter-spacing:-1px;
+    margin-bottom:8px;
+  }
+  .subtitle{
+    font-family: Helvetica, Arial, sans-serif;
+    font-size:19px;
+    color:var(--muted);
+    letter-spacing:0.3px;
+    margin-bottom:38px;
+  }
+
+  /* ---------- COMPARISON ---------- */
+  .compare{
+    flex:1;
+    display:grid;
+    grid-template-columns: 1fr 90px 1fr;
+    align-items:stretch;
+    column-gap:0;
+  }
+
+  .col{
+    display:flex;
+    flex-direction:column;
+    gap:22px;
+  }
+
+  .label-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size:14px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    font-weight:700;
+  }
+  .label-row.weak{ color:#8A6A4A; }
+  .label-row.strong{ color:var(--brown-deep); }
+  .tag-dot{ width:9px; height:9px; border-radius:3px; }
+  .tag-dot.weak{ background:#C9AE86; }
+  .tag-dot.strong{ background:var(--brown-deep); }
+
+  .card{
+    border-radius:18px;
+    padding:26px 24px;
+    font-family: Helvetica, Arial, sans-serif;
+  }
+
+  .card.prompt.weak{
+    background: var(--beige);
+    border: 1px solid var(--beige-dark);
+  }
+  .card.prompt.strong{
+    background: var(--white);
+    border: 1.5px solid var(--brown-mid);
+    box-shadow: 0 10px 28px rgba(59,42,30,0.10);
+  }
+
+  .card-icon{
+    width:34px; height:34px;
+    border-radius:9px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-bottom:14px;
+    font-size:17px;
+  }
+  .card-icon.weak{ background:var(--beige-dark); color:var(--brown-mid); }
+  .card-icon.strong{ background:var(--brown-deep); color:var(--cream); }
+
+  .card-text{
+    font-size:16.5px;
+    line-height:1.5;
+    color:var(--brown-deep);
+  }
+  .card.prompt.weak .card-text{ color:#6B5A44; font-style:italic; }
+
+  .down-arrow{
+    align-self:center;
+    color:var(--brown-soft);
+    font-size:22px;
+    opacity:0.7;
+  }
+
+  .card.output{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+  }
+  .card.output.weak{
+    background: repeating-linear-gradient(
+      -45deg, rgba(107,74,50,0.05) 0 10px, transparent 10px 20px
+    ), var(--beige);
+    border:1px dashed var(--beige-dark);
+  }
+  .card.output.strong{
+    background: var(--brown-deep);
+    border:1px solid var(--brown-deep);
+    box-shadow: 0 16px 34px rgba(59,42,30,0.22);
+  }
+
+  .lines{ display:flex; flex-direction:column; gap:10px; }
+  .line{ height:9px; border-radius:5px; }
+  .output.weak .line{ background:#C7B392; opacity:0.7; }
+  .output.weak .line:nth-child(1){ width:78%; }
+  .output.weak .line:nth-child(2){ width:55%; }
+  .output.weak .line:nth-child(3){ width:64%; }
+
+  .output.strong .line{ background:rgba(246,241,231,0.85); }
+  .output.strong .line:nth-child(1){ width:88%; height:10px; }
+  .output.strong .line:nth-child(2){ width:70%; }
+  .output.strong .line:nth-child(3){ width:80%; }
+  .checkrow{
+    display:flex; align-items:center; gap:10px; margin-top:16px;
+  }
+  .checkrow .box{
+    width:16px; height:16px; border-radius:4px;
+    background: var(--brown-soft);
+    display:flex; align-items:center; justify-content:center;
+    font-size:10px; color:var(--brown-deep);
+  }
+  .checkrow .line{ margin:0; }
+
+  .output-caption{
+    font-family: Helvetica, Arial, sans-serif;
+    font-size:13px;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    margin-top:18px;
+    font-weight:700;
+  }
+  .output.weak .output-caption{ color:#8A7A63; }
+  .output.strong .output-caption{ color:#D9C8A8; }
+
+  /* center connector */
+  .connector{
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .connector-line{
+    position:absolute;
+    top:20%;
+    bottom:20%;
+    left:50%;
+    width:1px;
+    background: linear-gradient(to bottom, transparent, var(--brown-soft), transparent);
+    opacity:0.4;
+  }
+  .connector-arrow{
+    background: var(--brown-deep);
+    color: var(--cream);
+    width:56px; height:56px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:22px;
+    font-family: Helvetica, Arial, sans-serif;
+    z-index:2;
+    box-shadow: 0 8px 20px rgba(59,42,30,0.25);
+  }
+
+  /* ---------- FOOTER ---------- */
+  .footer{
+    margin-top:34px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    border-top:1px solid var(--beige-dark);
+    padding-top:22px;
+  }
+  .footer-tagline{
+    font-family: Helvetica, Arial, sans-serif;
+    font-size:17px;
+    color:var(--brown-mid);
+    font-weight:700;
+    letter-spacing:0.3px;
+  }
+  .footer-brand{
+    font-family: Helvetica, Arial, sans-serif;
+    font-size:13px;
+    color:var(--muted);
+    letter-spacing:1px;
+    text-transform:uppercase;
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="frame">
+
+    <div class="eyebrow-row">
+      <div class="eyebrow-dot"></div>
+      <div class="eyebrow">AbTalks <span>· 60 Days Claude Challenge</span></div>
+    </div>
+
+    <h1 class="title">Prompt Engineering</h1>
+    <div class="subtitle">The words you choose decide the answer you get.</div>
+
+    <div class="compare">
+
+      <!-- WEAK SIDE -->
+      <div class="col">
+        <div class="label-row weak"><div class="tag-dot weak"></div>Weak Prompt</div>
+        <div class="card prompt weak">
+          <div class="card-icon weak">✎</div>
+          <div class="card-text">"Write about marketing."</div>
+        </div>
+        <div class="down-arrow">↓</div>
+        <div class="card output weak">
+          <div class="lines">
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+          </div>
+          <div class="output-caption">Basic Output</div>
+        </div>
+      </div>
+
+      <!-- CONNECTOR -->
+      <div class="connector">
+        <div class="connector-line"></div>
+        <div class="connector-arrow">→</div>
+      </div>
+
+      <!-- STRONG SIDE -->
+      <div class="col">
+        <div class="label-row strong"><div class="tag-dot strong"></div>Engineered Prompt</div>
+        <div class="card prompt strong">
+          <div class="card-icon strong">✦</div>
+          <div class="card-text">"Write a 150-word LinkedIn post for small business owners on 3 low-cost marketing strategies, in a friendly tone, ending with a call to action."</div>
+        </div>
+        <div class="down-arrow">↓</div>
+        <div class="card output strong">
+          <div class="lines">
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+          </div>
+          <div class="checkrow">
+            <div class="box">✓</div>
+            <div class="line" style="width:40%; margin:0;"></div>
+          </div>
+          <div class="output-caption">Better Output</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="footer">
+      <div class="footer-tagline">Better Prompts = Better Results</div>
+      <div class="footer-brand">Prompt Engineering 101</div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
