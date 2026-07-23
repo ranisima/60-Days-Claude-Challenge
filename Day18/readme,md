@@ -1,0 +1,27 @@
+# Day 18
+
+## Objective
+Created a reusable Claude Custom Skill named brain-dump-action-planner.
+
+## Steps Performed
+- Created Custom Skill
+- Added description
+- Added instructions
+- Tested with meeting notes
+- Generated dashboard
+- Reviewed summaries and action items
+
+## Dashboard Features
+- Executive Summary
+- Action Items
+- Risks
+- Blockers
+- Open Questions
+
+## Key Learnings
+- Custom Skills save time by reusing instructions.
+- One skill can process different note formats.
+- Dashboards make action tracking much easier.
+
+## Screenshots
+(Add screenshots here)
