@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prior Authorization Workflow Simulator</title>
+<style>
+/* ============================================================
+   PRIOR AUTHORIZATION WORKFLOW SIMULATOR
+   Single-file HTML + CSS + Vanilla JS app.
+   All state lives in JS memory (no localStorage, no frameworks).
+   ============================================================ */
+
+:root{
+  --blue-25:#f4f9fe;
+  --blue-50:#e9f3fc;
+  --blue-100:#d3e6f8;
+  --blue-200:#aed0f0;
+  --blue-300:#82b7e6;
+  --blue-400:#5a9cd8;
+  --blue-500:#3d82c4;
+  --blue-600:#2c68a6;
+  --blue-700:#1f4f82;
+  --blue-800:#173c63;
+  --blue-900:#0f2846;
+  --ink:#0a0a0a;
+  --gold:#d9a441;
+  --danger:#a83232;
+  --ok:#1f7a3d;
+  --radius:10px;
+}
+
+*{box-sizing:border-box;}
+
+html,body{
+  margin:0;
+  padding:0;
+  min-height:100vh;
+  background:linear-gradient(180deg,var(--blue-25),var(--blue-100));
+  color:var(--ink);
+  font-family:"Segoe UI",Verdana,Arial,sans-serif;
+}
+
+#app{
+  max-width:1400px;
+  margin:0 auto;
+  padding:16px;
+}
+
+/* ---------- Header / stats bar ---------- */
+header#topbar{
+  background:var(--blue-100);
+  border:2px solid var(--blue-300);
+  border-radius:var(--radius);
+  padding:14px 18px;
+  margin-bottom:14px;
+}
+header#topbar h1{
+  margin:0 0 4px 0;
+  font-size:22px;
+  color:var(--blue-900);
+}
+header#topbar .subtitle{
+  font-size:13px;
+  color:var(--ink);
+  margin-bottom:10px;
+}
+
+.stats-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:10px;
+}
+.stat-pill{
+  background:var(--blue-50);
+  border:1px solid var(--blue-300);
+  border-radius:20px;
+  padding:6px 14px;
+  font-size:13px;
+  font-weight:600;
+  color:var(--ink);
+}
+.stat-pill span.label{ color:var(--blue-800); font-weight:700; margin-right:6px;}
+
+/* progress tracker */
+#progressTracker{
+  display:flex;
+  align-items:center;
+  overflow-x:auto;
+  padding:8px 4px;
+  gap:4px;
+}
+.progress-node{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  min-width:78px;
+  flex-shrink:0;
+}
+.progress-node .dot{
+  width:22px;height:22px;border-radius:50%;
+  background:var(--blue-200);
+  border:2px solid var(--blue-400);
+  margin-bottom:4px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;color:var(--blue-900);
+}
+.progress-node.active .dot{ background:var(--gold); border-color:#b8842a; color:#3a2600;}
+.progress-node.done .dot{ background:var(--blue-600); border-color:var(--blue-800); color:#fff;}
+.progress-node .plabel{
+  font-size:10px; text-align:center; color:var(--ink); max-width:80px; line-height:1.1;
+}
+.progress-line{
+  flex:0 0 24px; height:3px; background:var(--blue-300); margin-top:-18px;
+}
+.progress-line.done{ background:var(--blue-600); }
+
+/* ---------- Scenario select overlay ---------- */
+#startOverlay, #completionOverlay{
+  position:fixed; inset:0; background:rgba(15,40,70,0.55);
+  display:flex; align-items:center; justify-content:center;
+  z-index:50; padding:16px;
+}
+.hidden{ display:none !important; }
+
+.modal-card{
+  background:#fff;
+  border:3px solid var(--blue-400);
+  border-radius:14px;
+  max-width:720px;
+  width:100%;
+  max-height:90vh;
+  overflow-y:auto;
+  padding:26px 28px;
+  color:var(--ink);
+}
+.modal-card h2{ color:var(--blue-900); margin-top:0;}
+.scenario-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:12px;
+  margin:16px 0;
+}
+.scenario-card{
+  background:var(--blue-50);
+  border:2px solid var(--blue-300);
+  border-radius:10px;
+  padding:14px;
+  cursor:pointer;
+  text-align:left;
+  font-family:inherit;
+  color:var(--ink);
+  transition:transform .12s ease, box-shadow .12s ease, background .12s ease;
+}
+.scenario-card:hover{
+  background:var(--blue-100);
+  transform:translateY(-2px);
+  box-shadow:0 6px 14px rgba(15,40,70,0.25);
+}
+.scenario-card .icon{ font-size:28px; }
+.scenario-card h3{ margin:6px 0 4px 0; color:var(--blue-800); font-size:16px;}
+.scenario-card p{ margin:0; font-size:12.5px; }
+
+button.btn{
+  background:var(--blue-600);
+  color:#fff;
+  border:none;
+  border-radius:8px;
+  padding:10px 18px;
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+  transition:background .12s ease;
+}
+button.btn:hover{ background:var(--blue-700); }
+button.btn.secondary{
+  background:var(--blue-50);
+  color:var(--ink);
+  border:2px solid var(--blue-400);
+}
+button.btn.secondary:hover{ background:var(--blue-100); }
+
+/* ---------- Board ---------- */
+#boardWrap{
+  background:var(--blue-50);
+  border:2px solid var(--blue-300);
+  border-radius:var(--radius);
+  padding:14px;
+  margin-bottom:14px;
+  overflow-x:auto;
+}
+#board{
+  display:grid;
+  grid-template-columns: 128px repeat(10, minmax(120px, 1fr));
+  grid-auto-rows:minmax(96px,auto);
+  gap:8px;
+  min-width:1350px;
+}
+.lane-label{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:800;
+  color:#fff;
+  border-radius:8px;
+  padding:8px;
+  text-align:center;
+  font-size:14px;
+  letter-spacing:.4px;
+}
+.lane-label.patient{ background:var(--blue-500); grid-row:1; grid-column:1;}
+.lane-label.provider{ background:var(--blue-700); grid-row:2; grid-column:1;}
+.lane-label.payer{ background:var(--blue-900); grid-row:3; grid-column:1;}
+
+.cell{
+  background:var(--blue-25);
+  border:1px dashed var(--blue-300);
+  border-radius:8px;
+  padding:6px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  justify-content:center;
+  min-height:96px;
+}
+
+.stagebox{
+  background:#fff;
+  border:2px solid var(--blue-300);
+  border-radius:8px;
+  padding:6px 8px;
+  font-size:11.5px;
+  font-weight:600;
+  color:var(--ink);
+  text-align:center;
+  min-height:34px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+}
+.stagebox.valid-target{
+  border-color:var(--gold);
+  box-shadow:0 0 0 3px rgba(217,164,65,0.45);
+  background:#fffdf3;
+}
+.stagebox.disabled-target{ opacity:.45; }
+.stagebox .stitle{ pointer-events:none; }
+
+/* the draggable case token */
+.token{
+  width:100%;
+  background:linear-gradient(135deg,var(--blue-600),var(--blue-800));
+  color:#fff;
+  border-radius:6px;
+  padding:6px 4px;
+  font-size:11px;
+  font-weight:700;
+  text-align:center;
+  cursor:grab;
+  touch-action:none;
+  user-select:none;
+  box-shadow:0 2px 4px rgba(0,0,0,0.3);
+}
+.token.locked{ cursor:not-allowed; opacity:.7; }
+.token.floating{
+  position:fixed;
+  z-index:200;
+  pointer-events:none;
+  opacity:.95;
+  width:110px;
+}
+.token .ticon{ font-size:14px; display:block; }
+
+.shake{ animation:shakeAnim .35s ease; }
+@keyframes shakeAnim{
+  0%,100%{ transform:translateX(0);}
+  25%{ transform:translateX(-6px);}
+  75%{ transform:translateX(6px);}
+}
+
+/* ---------- Education / narration panel ---------- */
+#eduPanel{
+  background:#fff;
+  border:2px solid var(--blue-400);
+  border-radius:var(--radius);
+  padding:14px 18px;
+  min-height:70px;
+  color:var(--ink);
+}
+#eduPanel h3{ margin:0 0 6px 0; color:var(--blue-800); font-size:14px;}
+#eduPanel p{ margin:0; font-size:13.5px; line-height:1.5;}
+#eduPanel .spinner{
+  display:inline-block; width:12px;height:12px;border-radius:50%;
+  border:3px solid var(--blue-300); border-top-color:var(--blue-700);
+  animation:spin .8s linear infinite; margin-right:8px; vertical-align:middle;
+}
+@keyframes spin{ to{ transform:rotate(360deg);} }
+
+/* ---------- Completion overlay ---------- */
+.result-banner{
+  font-size:20px; font-weight:800; padding:10px 14px; border-radius:8px;
+  margin-bottom:12px; text-align:center;
+}
+.result-banner.approve{ background:#e3f6e8; color:var(--ok); border:2px solid var(--ok); }
+.result-banner.deny{ background:#fbe7e7; color:var(--danger); border:2px solid var(--danger); }
+
+.summary-grid{
+  display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:14px 0;
+}
+.summary-item{
+  background:var(--blue-50); border:1px solid var(--blue-300); border-radius:8px; padding:10px;
+  font-size:13px;
+}
+.summary-item b{ display:block; color:var(--blue-800); font-size:12px; margin-bottom:2px;}
+#timelineList{ margin:0; padding-left:18px; font-size:12.5px; max-height:180px; overflow-y:auto;}
+#timelineList li{ margin-bottom:4px; }
+
+/* confetti */
+#confettiLayer{
+  position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:60;
+}
+.confetti-piece{
+  position:absolute; top:-20px; width:9px; height:14px; opacity:.9;
+  animation:fall linear forwards;
+}
+@keyframes fall{
+  to{ transform:translateY(110vh) rotate(540deg); }
+}
+
+/* ---------- Footer controls ---------- */
+#controlsRow{
+  display:flex; justify-content:space-between; align-items:center; margin-top:12px; flex-wrap:wrap; gap:8px;
+}
+
+/* Responsive */
+@media (max-width:800px){
+  header#topbar h1{ font-size:18px; }
+  .modal-card{ padding:18px; }
+  .summary-grid{ grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <header id="topbar">
+    <h1>🩺 Prior Authorization Workflow Simulator</h1>
+    <div class="subtitle" id="scenarioSubtitle">Select a patient scenario to begin.</div>
+    <div class="stats-row">
+      <div class="stat-pill">📅 <span class="label">Days Elapsed:</span><span id="daysStat">0</span></div>
+      <div class="stat-pill">⚡ <span class="label">Efficiency Score:</span><span id="effStat">100</span></div>
+      <div class="stat-pill">🧾 <span class="label">Current Stage:</span><span id="stageStat">—</span></div>
+    </div>
+    <div id="progressTracker"></div>
+  </header>
+
+  <div id="boardWrap">
+    <div id="board"><!-- built by JS --></div>
+  </div>
+
+  <div id="eduPanel">
+    <h3>Workflow Guide</h3>
+    <p id="eduText">Choose a scenario above to start the simulation. Drag the case card between stages to move the patient's case through the Prior Authorization process.</p>
+  </div>
+
+  <div id="controlsRow">
+    <div style="font-size:12px;color:var(--blue-800);">Tip: drag the blue case card onto a highlighted (gold) box to advance it.</div>
+    <button class="btn secondary" id="restartBtn">🔄 Restart / New Patient</button>
+  </div>
+
+</div>
+
+<!-- ============== Scenario selection overlay ============== -->
+<div id="startOverlay">
+  <div class="modal-card">
+    <h2>Choose a Patient Scenario</h2>
+    <p>Every scenario simulates a real prior-authorization journey with different documentation demands, review timelines, and approval odds. Pick one to play.</p>
+    <div class="scenario-grid" id="scenarioGrid"><!-- built by JS --></div>
+  </div>
+</div>
+
+<!-- ============== Completion overlay ============== -->
+<div id="completionOverlay" class="hidden">
+  <div class="modal-card">
+    <div id="resultBanner" class="result-banner">Result</div>
+    <h2 style="margin-top:0;">Workflow Summary</h2>
+    <div class="summary-grid" id="summaryGrid"><!-- built by JS --></div>
+    <h3 style="color:var(--blue-800);font-size:14px;">Case Timeline</h3>
+    <ol id="timelineList"></ol>
+    <div style="text-align:center;margin-top:18px;">
+      <button class="btn" id="newPatientBtn">🔄 Start New Patient</button>
+    </div>
+  </div>
+</div>
+
+<div id="confettiLayer"></div>
+
+<script>
+/* ============================================================
+   SECTION 1: EDITABLE SCENARIO DATA
+   Add / edit patient scenarios here. Each scenario drives the
+   documentation complexity, review-day multiplier and the
+   probability of Approval / Pend / Denial at each payer decision
+   point.
+   ============================================================ */
+const SCENARIOS = [
+  {
+    id: "surgery",
+    icon: "🦵",
+    name: "Elective Knee Surgery",
+    patient: "Maria Alvarez, 58",
+    description: "Total knee replacement recommended after failed conservative treatment for osteoarthritis.",
+    multiplier: 1.3,        // affects review/doc day-costs
+    idealDays: 10,
+    probs: {
+      first:  { approve: 0.45, pend: 0.35, deny: 0.20 },
+      second: { approve: 0.60, deny: 0.40 },
+      peer:   { approve: 0.50, deny: 0.50 }
+    }
+  },
+  {
+    id: "mri",
+    icon: "🧲",
+    name: "MRI – Lumbar Spine",
+    patient: "James Whitfield, 41",
+    description: "Persistent lower-back pain with radiculopathy; ordering physician requests MRI to rule out disc herniation.",
+    multiplier: 0.8,
+    idealDays: 6,
+    probs: {
+      first:  { approve: 0.60, pend: 0.25, deny: 0.15 },
+      second: { approve: 0.70, deny: 0.30 },
+      peer:   { approve: 0.60, deny: 0.40 }
+    }
+  },
+  {
+    id: "specialty_med",
+    icon: "💊",
+    name: "Specialty Medication",
+    patient: "Priya Nair, 34",
+    description: "Biologic infusion therapy prescribed for moderate-to-severe rheumatoid arthritis after methotrexate failure.",
+    multiplier: 1.6,
+    idealDays: 14,
+    probs: {
+      first:  { approve: 0.35, pend: 0.40, deny: 0.25 },
+      second: { approve: 0.55, deny: 0.45 },
+      peer:   { approve: 0.45, deny: 0.55 }
+    }
+  },
+  {
+    id: "inpatient",
+    icon: "🏥",
+    name: "Inpatient Admission",
+    patient: "Robert Chen, 67",
+    description: "Admission for community-acquired pneumonia with hypoxia requiring inpatient-level monitoring.",
+    multiplier: 1.8,
+    idealDays: 8,
+    probs: {
+      first:  { approve: 0.50, pend: 0.30, deny: 0.20 },
+      second: { approve: 0.65, deny: 0.35 },
+      peer:   { approve: 0.55, deny: 0.45 }
+    }
+  }
+];
+
+/* ============================================================
+   SECTION 2: WORKFLOW GRAPH
+   Each stage: lane, grid cell group, title, educational text,
+   whether it is an automatic payer "decision" stage, and
+   whether it is a terminal-approval / terminal-denial stage.
+   ============================================================ */
+const STAGES = {
+  patient_request: {
+    lane:"patient", title:"Patient Requests Care",
+    edu:(s)=>`${s.patient} sees their provider about a health concern. The provider recommends ${s.name.toLowerCase()}, which is on the payer's list of services requiring Prior Authorization (PA). Drag the case card to "Medical Necessity Review" to begin.`,
+  },
+  medical_necessity: {
+    lane:"provider", title:"Medical Necessity Review",
+    edu:(s)=>`The provider's office evaluates whether ${s.name.toLowerCase()} meets clinical guidelines (e.g., InterQual/MCG criteria) for medical necessity before requesting authorization. This step prevents unnecessary submissions and denials.`,
+  },
+  doc_collection: {
+    lane:"provider", title:"Collect PA Documentation",
+    edu:(s)=>`Staff gather supporting documentation: chart notes, imaging/labs, conservative-treatment history, and the payer's specific PA form. Missing documentation is the #1 cause of Pends and Denials in real PA workflows.`,
+  },
+  submission: {
+    lane:"provider", title:"Submit to Payer",
+    edu:(s)=>`The completed PA request is submitted to the payer — via portal, fax, or EDI 278 transaction — starting the payer's official review clock.`,
+  },
+  payer_review: {
+    lane:"payer", title:"Payer Review", auto:true, group:"first",
+    edu:(s)=>`The payer's Utilization Management (UM) team reviews the request against medical policy. Outcomes are Approval, Pend (more info needed), or Denial.`,
+  },
+  approved: {
+    lane:"payer", title:"✅ Approved", terminal:"approve",
+    edu:(s)=>`The payer approves the request. An authorization number is issued and the patient can proceed with care.`,
+  },
+  pended: {
+    lane:"payer", title:"⏸ Pended – Info Requested",
+    edu:(s)=>`The payer pends the case, requesting additional clinical documentation before a decision can be made. Drag the card to "Provide Additional Info."`,
+  },
+  denied: {
+    lane:"payer", title:"❌ Denied", 
+    edu:(s)=>`The payer denies the request, citing medical policy or insufficient documentation. The provider can file an Appeal on the patient's behalf. Drag the card to "File Appeal."`,
+  },
+  additional_info: {
+    lane:"provider", title:"Provide Additional Info", group:"add_res",
+    edu:(s)=>`The provider's office supplies the extra clinical notes/tests the payer requested. This is a common real-world delay point that adds days to the process.`,
+  },
+  resubmit: {
+    lane:"provider", title:"Resubmit to Payer", group:"add_res",
+    edu:(s)=>`With the additional documentation attached, the request is resubmitted for a second review.`,
+  },
+  payer_review2: {
+    lane:"payer", title:"Payer Re-Review", auto:true, group:"second_peer",
+    edu:(s)=>`The payer's UM team reviews the completed file a second time with the newly supplied documentation.`,
+  },
+  approved2: {
+    lane:"payer", title:"✅ Approved", terminal:"approve", group:"outcomes2",
+    edu:(s)=>`The payer approves the request after receiving the additional documentation.`,
+  },
+  denied2: {
+    lane:"payer", title:"❌ Denied", group:"outcomes2",
+    edu:(s)=>`The payer denies the request again. The provider can still file a formal Appeal. Drag the card to "File Appeal."`,
+  },
+  appeal: {
+    lane:"provider", title:"File Appeal", group:"add_res",
+    edu:(s)=>`The provider files a formal, written appeal disputing the denial, often including a letter of medical necessity from the treating physician.`,
+  },
+  peer_to_peer: {
+    lane:"payer", title:"Peer-to-Peer Review", auto:true, group:"second_peer",
+    edu:(s)=>`A Peer-to-Peer (P2P) review is scheduled: the treating physician speaks directly with the payer's medical director to discuss the clinical rationale for the requested service.`,
+  },
+  final_approved: {
+    lane:"payer", title:"✅ Approved on Appeal", terminal:"approve", group:"outcomes2",
+    edu:(s)=>`Following the peer-to-peer discussion, the payer's medical director overturns the denial and approves the service.`,
+  },
+  final_denied: {
+    lane:"payer", title:"❌ Denial Upheld", terminal:"deny", group:"outcomes2",
+    edu:(s)=>`The payer's medical director upholds the original denial. The patient and provider retain the right to a further external/independent review, outside the scope of this simulation.`,
+  },
+};
+
+/* Directed transition graph: stageId -> array of valid next stage ids */
+const TRANSITIONS = {
+  patient_request:  ["medical_necessity"],
+  medical_necessity:["doc_collection"],
+  doc_collection:   ["submission"],
+  submission:       ["payer_review"],
+  payer_review:      ["approved","pended","denied"],
+  approved:         ["__complete__"],
+  pended:           ["additional_info"],
+  denied:           ["appeal"],
+  additional_info:  ["resubmit"],
+  resubmit:         ["payer_review2"],
+  payer_review2:    ["approved2","denied2"],
+  approved2:        ["__complete__"],
+  denied2:          ["appeal"],
+  appeal:           ["peer_to_peer"],
+  peer_to_peer:      ["final_approved","final_denied"],
+  final_approved:   ["__complete__"],
+  final_denied:     ["__complete__"],
+};
+
+/* Progress tracker grouping: maps stage id -> index 0..6 */
+const PROGRESS_MAP = {
+  patient_request:0, medical_necessity:1, doc_collection:2, submission:3,
+  payer_review:4, approved:5, pended:5, denied:5,
+  additional_info:6, resubmit:6, payer_review2:6, approved2:6, denied2:6,
+  appeal:6, peer_to_peer:6, final_approved:6, final_denied:6
+};
+const PROGRESS_LABELS = ["Request","Necessity","Documentation","Submission","Payer Review","Decision","Resolution"];
+
+/* Base day-cost per stage (multiplied by scenario complexity where noted) */
+const BASE_DAYS = {
+  patient_request:1, medical_necessity:1, doc_collection:2, submission:1,
+  payer_review:3, approved:0, pended:0, denied:0,
+  additional_info:2, resubmit:1, payer_review2:3, approved2:0, denied2:0,
+  appeal:2, peer_to_peer:3, final_approved:0, final_denied:0
+};
+const MULTIPLIED_STAGES = new Set(["medical_necessity","doc_collection","payer_review","additional_info","payer_review2","appeal","peer_to_peer"]);
+
+/* Board layout: which grid cell (row, col) each stage-group renders in.
+   row 1 = patient, row 2 = provider, row 3 = payer (matches lane-label rows) */
+const CELLS = [
+  { row:1, col:2,  stages:["patient_request"] },
+  { row:2, col:3,  stages:["medical_necessity"] },
+  { row:2, col:4,  stages:["doc_collection"] },
+  { row:2, col:5,  stages:["submission"] },
+  { row:3, col:6,  stages:["payer_review"] },
+  { row:3, col:7,  stages:["approved","pended","denied"] },
+  { row:2, col:8,  stages:["additional_info"] },
+  { row:2, col:9,  stages:["appeal","resubmit"] },
+  { row:3, col:10, stages:["payer_review2","peer_to_peer"] },
+  { row:3, col:11, stages:["approved2","denied2","final_approved","final_denied"] },
+];
+
+/* ============================================================
+   SECTION 3: GAME STATE
+   ============================================================ */
+let game = null; // set on startGame()
+
+function freshGameState(scenario){
+  return {
+    scenario,
+    stage: "patient_request",
+    daysElapsed: 0,
+    log: [],          // [{stage,title,dayAt}]
+    loopCount: 0,     // pend/denial occurrences (efficiency penalty)
+    sawPeer: false,
+    finished: false,
+  };
+}
+
+/* ============================================================
+   SECTION 4: BOARD RENDERING (built once per game start)
+   ============================================================ */
+const boardEl = document.getElementById("board");
+const stageBoxEls = {}; // stageId -> element
+
+function buildBoard(){
+  boardEl.innerHTML = "";
+  stageBoxEls.__reset = true;
+  for (const key in stageBoxEls) delete stageBoxEls[key];
+
+  // Lane labels
+  const lanes = [
+    {cls:"patient", label:"👤 PATIENT"},
+    {cls:"provider", label:"🩺 PROVIDER"},
+    {cls:"payer", label:"🏦 PAYER"},
+  ];
+  lanes.forEach(l=>{
+    const d = document.createElement("div");
+    d.className = "lane-label " + l.cls;
+    d.textContent = l.label;
+    boardEl.appendChild(d);
+  });
+
+  // Cells
+  CELLS.forEach(cellDef=>{
+    const cell = document.createElement("div");
+    cell.className = "cell";
+    cell.style.gridRow = cellDef.row;
+    cell.style.gridColumn = cellDef.col;
+    cellDef.stages.forEach(stageId=>{
+      const box = document.createElement("div");
+      box.className = "stagebox";
+      box.dataset.stage = stageId;
+      const t = document.createElement("span");
+      t.className = "stitle";
+      t.textContent = STAGES[stageId].title;
+      box.appendChild(t);
+      cell.appendChild(box);
+      stageBoxEls[stageId] = box;
+    });
+    boardEl.appendChild(cell);
+  });
+
+  // Place token in the starting stage
+  placeTokenIn("patient_request", true);
+}
+
+/* ============================================================
+   SECTION 5: TOKEN (the draggable case card) + drag logic
+   ============================================================ */
+let tokenEl = null;
+
+function makeTokenEl(){
+  const el = document.createElement("div");
+  el.className = "token";
+  el.id = "caseToken";
+  el.innerHTML = '<span class="ticon">📁</span><span class="tlabel">Case File</span>';
+  el.addEventListener("pointerdown", onTokenPointerDown);
+  return el;
+}
+
+function placeTokenIn(stageId, silent){
+  if (!tokenEl) tokenEl = makeTokenEl();
+  const box = stageBoxEls[stageId];
+  // remove any previous title text node duplication issues - keep stitle, append token after
+  box.appendChild(tokenEl);
+  tokenEl.classList.remove("floating");
+  tokenEl.style.position = "";
+  tokenEl.style.left = "";
+  tokenEl.style.top = "";
+  tokenEl.style.width = "";
+  if (!silent) onEnterStage(stageId);
+}
+
+let dragState = null;
+
+function onTokenPointerDown(e){
+  if (!game || game.finished) return;
+  const stage = game.stage;
+  if (STAGES[stage].auto) return; // locked during auto decision
+  const rect = tokenEl.getBoundingClientRect();
+  dragState = {
+    startX: e.clientX, startY: e.clientY,
+    offsetX: e.clientX - rect.left, offsetY: e.clientY - rect.top,
+    width: rect.width
+  };
+  tokenEl.setPointerCapture(e.pointerId);
+  tokenEl.classList.add("floating");
+  tokenEl.style.width = dragState.width + "px";
+  tokenEl.style.left = (rect.left) + "px";
+  tokenEl.style.top = (rect.top) + "px";
+  document.body.appendChild(tokenEl);
+  highlightValidTargets(true);
+  document.addEventListener("pointermove", onTokenPointerMove);
+  document.addEventListener("pointerup", onTokenPointerUp);
+}
+
+function onTokenPointerMove(e){
+  if (!dragState) return;
+  tokenEl.style.left = (e.clientX - dragState.offsetX) + "px";
+  tokenEl.style.top = (e.clientY - dragState.offsetY) + "px";
+}
+
+function onTokenPointerUp(e){
+  if (!dragState) return;
+  document.removeEventListener("pointermove", onTokenPointerMove);
+  document.removeEventListener("pointerup", onTokenPointerUp);
+  tokenEl.style.display = "none";
+  const under = document.elementFromPoint(e.clientX, e.clientY);
+  tokenEl.style.display = "";
+  const targetBox = under ? under.closest(".stagebox") : null;
+  highlightValidTargets(false);
+  dragState = null;
+
+  const current = game.stage;
+  const validNext = TRANSITIONS[current] || [];
+
+  if (targetBox && validNext.includes(targetBox.dataset.stage)){
+    const nextStage = targetBox.dataset.stage;
+    placeTokenIn(nextStage);
+  } else {
+    // invalid drop -> snap back with a shake
+    placeTokenIn(current, true);
+    tokenEl.classList.add("shake");
+    setTimeout(()=>tokenEl.classList.remove("shake"), 350);
+    if (targetBox){
+      showEdu('<span style="color:var(--danger);font-weight:700;">Not yet.</span> That stage is not the valid next step from "' + STAGES[current].title + '" right now.');
+    }
+  }
+}
+
+function highlightValidTargets(on){
+  const current = game.stage;
+  const validNext = TRANSITIONS[current] || [];
+  Object.keys(stageBoxEls).forEach(id=>{
+    const box = stageBoxEls[id];
+    box.classList.remove("valid-target","disabled-target");
+    if (on){
+      if (validNext.includes(id)) box.classList.add("valid-target");
+      else box.classList.add("disabled-target");
+    }
+  });
+}
+
+/* ============================================================
+   SECTION 6: STAGE ENTRY LOGIC (days, scoring, narration, auto decisions)
+   ============================================================ */
+function dayCostFor(stageId){
+  const base = BASE_DAYS[stageId] || 0;
+  const mult = MULTIPLIED_STAGES.has(stageId) ? game.scenario.multiplier : 1;
+  return Math.max( (base===0?0:1), Math.round(base * mult) );
+}
+
+function weightedPick(probObj){
+  const r = Math.random();
+  let acc = 0;
+  const entries = Object.entries(probObj);
+  for (const [key,p] of entries){
+    acc += p;
+    if (r <= acc) return key;
+  }
+  return entries[entries.length-1][0];
+}
+
+function onEnterStage(stageId){
+  game.stage = stageId;
+  const cost = dayCostFor(stageId);
+  game.daysElapsed += cost;
+  game.log.push({stage:stageId, title:STAGES[stageId].title, day:game.daysElapsed});
+
+  if (stageId === "pended" || stageId === "denied" || stageId === "denied2") game.loopCount++;
+  if (stageId === "peer_to_peer") game.sawPeer = true;
+
+  updateStatsUI();
+  updateProgressTracker();
+  showEdu(edutextFor(stageId), STAGES[stageId].auto);
+
+  if (stageId === "__complete__"){ return; } // not used directly (handled via finish paths)
+
+  const def = STAGES[stageId];
+
+  if (def.auto){
+    // Lock the token, run a short "reviewing" delay, then auto-route.
+    tokenEl.classList.add("locked");
+    setTimeout(()=>{
+      const group = def.group === "first" ? game.scenario.probs.first
+                  : (stageId === "payer_review2" ? game.scenario.probs.second : game.scenario.probs.peer);
+      const decisionKey = weightedPick(group);
+      const nextStage = mapDecisionToStage(stageId, decisionKey);
+      tokenEl.classList.remove("locked");
+      animateAutoMove(nextStage);
+    }, 1300);
+    return;
+  }
+
+  if (def.terminal){
+    // Terminal outcome reached directly by drag (shouldn't normally happen since terminals are auto-routed,
+    // but guard anyway) -> finish game.
+    setTimeout(()=>finishGame(def.terminal), 600);
+  }
+}
+
+function mapDecisionToStage(fromStage, decisionKey){
+  if (fromStage === "payer_review"){
+    if (decisionKey === "approve") return "approved";
+    if (decisionKey === "pend") return "pended";
+    return "denied";
+  }
+  if (fromStage === "payer_review2"){
+    return decisionKey === "approve" ? "approved2" : "denied2";
+  }
+  if (fromStage === "peer_to_peer"){
+    return decisionKey === "approve" ? "final_approved" : "final_denied";
+  }
+}
+
+function animateAutoMove(nextStage){
+  placeTokenIn(nextStage); // triggers onEnterStage(nextStage) via placeTokenIn -> not silent
+  const def = STAGES[nextStage];
+  if (def.terminal){
+    setTimeout(()=>finishGame(def.terminal), 1400);
+  }
+}
+
+function edutextFor(stageId){
+  return STAGES[stageId].edu(game.scenario);
+}
+
+/* ============================================================
+   SECTION 7: UI UPDATES (stats, progress tracker, edu panel)
+   ============================================================ */
+function updateStatsUI(){
+  document.getElementById("daysStat").textContent = game.daysElapsed;
+  document.getElementById("effStat").textContent = computeEfficiency();
+  document.getElementById("stageStat").textContent = STAGES[game.stage] ? STAGES[game.stage].title : "—";
+}
+
+function computeEfficiency(){
+  let score = 100;
+  score -= game.daysElapsed * 1.2;
+  score -= game.loopCount * 15;
+  if (game.sawPeer) score -= 15;
+  if (game.daysElapsed <= game.scenario.idealDays) score += 10;
+  score = Math.max(0, Math.min(100, Math.round(score)));
+  return score;
+}
+
+function buildProgressTracker(){
+  const wrap = document.getElementById("progressTracker");
+  wrap.innerHTML = "";
+  PROGRESS_LABELS.forEach((label, i)=>{
+    if (i>0){
+      const line = document.createElement("div");
+      line.className = "progress-line";
+      line.dataset.idx = i;
+      wrap.appendChild(line);
+    }
+    const node = document.createElement("div");
+    node.className = "progress-node";
+    node.dataset.idx = i;
+    node.innerHTML = '<div class="dot">'+(i+1)+'</div><div class="plabel">'+label+'</div>';
+    wrap.appendChild(node);
+  });
+}
+
+function updateProgressTracker(){
+  const idx = game.finished ? PROGRESS_LABELS.length-1 : (PROGRESS_MAP[game.stage] ?? 0);
+  document.querySelectorAll(".progress-node").forEach(node=>{
+    const i = parseInt(node.dataset.idx,10);
+    node.classList.remove("active","done");
+    if (i < idx) node.classList.add("done");
+    else if (i === idx) node.classList.add("active");
+  });
+  document.querySelectorAll(".progress-line").forEach(line=>{
+    const i = parseInt(line.dataset.idx,10);
+    line.classList.toggle("done", i <= idx);
+  });
+}
+
+function showEdu(html, spinner){
+  const p = document.getElementById("eduText");
+  p.innerHTML = (spinner ? '<span class="spinner"></span>Reviewing case… ' : '') + html;
+}
+
+/* ============================================================
+   SECTION 8: SCENARIO SELECT + GAME START
+   ============================================================ */
+function buildScenarioGrid(){
+  const grid = document.getElementById("scenarioGrid");
+  grid.innerHTML = "";
+  SCENARIOS.forEach(s=>{
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = "scenario-card";
+    card.innerHTML = `<span class="icon">${s.icon}</span><h3>${s.name}</h3><p><b>${s.patient}</b><br>${s.description}</p>`;
+    card.addEventListener("click", ()=>startGame(s));
+    grid.appendChild(card);
+  });
+}
+
+function startGame(scenario){
+  game = freshGameState(scenario);
+  document.getElementById("startOverlay").classList.add("hidden");
+  document.getElementById("completionOverlay").classList.add("hidden");
+  document.getElementById("scenarioSubtitle").textContent =
+    `${scenario.icon} ${scenario.name} — Patient: ${scenario.patient}`;
+  buildProgressTracker();
+  buildBoard();
+  updateStatsUI();
+  updateProgressTracker();
+  showEdu(edutextFor("patient_request"));
+  game.log.push({stage:"patient_request", title:STAGES.patient_request.title, day:0});
+}
+
+/* ============================================================
+   SECTION 9: COMPLETION / SUMMARY / CELEBRATION
+   ============================================================ */
+function finishGame(result){
+  game.finished = true;
+  updateProgressTracker();
+
+  const overlay = document.getElementById("completionOverlay");
+  const banner = document.getElementById("resultBanner");
+  const isApprove = result === "approve";
+  banner.className = "result-banner " + (isApprove ? "approve" : "deny");
+  banner.textContent = isApprove ? "🎉 Approved! The patient can proceed with care." : "⛔ Final Denial — Authorization Not Granted";
+
+  const eff = computeEfficiency();
+  const grade = eff>=90?"A":eff>=80?"B":eff>=65?"C":eff>=50?"D":"F";
+
+  document.getElementById("summaryGrid").innerHTML = `
+    <div class="summary-item"><b>Scenario</b>${game.scenario.icon} ${game.scenario.name}</div>
+    <div class="summary-item"><b>Patient</b>${game.scenario.patient}</div>
+    <div class="summary-item"><b>Total Days Elapsed</b>${game.daysElapsed} days</div>
+    <div class="summary-item"><b>Efficiency Score</b>${eff} / 100 (Grade ${grade})</div>
+    <div class="summary-item"><b>Pend / Denial Loops</b>${game.loopCount}</div>
+    <div class="summary-item"><b>Peer-to-Peer Required</b>${game.sawPeer ? "Yes" : "No"}</div>
+  `;
+
+  const list = document.getElementById("timelineList");
+  list.innerHTML = "";
+  game.log.forEach(entry=>{
+    const li = document.createElement("li");
+    li.textContent = `Day ${entry.day}: ${entry.title}`;
+    list.appendChild(li);
+  });
+
+  overlay.classList.remove("hidden");
+  if (isApprove) launchConfetti();
+}
+
+function launchConfetti(){
+  const layer = document.getElementById("confettiLayer");
+  layer.innerHTML = "";
+  const colors = ["#2c68a6","#5a9cd8","#aed0f0","#d9a441","#1f4f82"];
+  const count = 90;
+  for (let i=0;i<count;i++){
+    const p = document.createElement("div");
+    p.className = "confetti-piece";
+    p.style.left = (Math.random()*100) + "vw";
+    p.style.background = colors[Math.floor(Math.random()*colors.length)];
+    p.style.animationDuration = (2.5 + Math.random()*2) + "s";
+    p.style.animationDelay = (Math.random()*0.6) + "s";
+    p.style.transform = `rotate(${Math.random()*360}deg)`;
+    layer.appendChild(p);
+  }
+  setTimeout(()=>{ layer.innerHTML = ""; }, 5000);
+}
+
+/* ============================================================
+   SECTION 10: RESTART CONTROLS
+   ============================================================ */
+function resetToScenarioSelect(){
+  game = null;
+  document.getElementById("completionOverlay").classList.add("hidden");
+  document.getElementById("startOverlay").classList.remove("hidden");
+  document.getElementById("scenarioSubtitle").textContent = "Select a patient scenario to begin.";
+  document.getElementById("daysStat").textContent = "0";
+  document.getElementById("effStat").textContent = "100";
+  document.getElementById("stageStat").textContent = "—";
+  document.getElementById("progressTracker").innerHTML = "";
+  boardEl.innerHTML = "";
+  showEdu("Choose a scenario above to start the simulation. Drag the case card between stages to move the patient's case through the Prior Authorization process.");
+}
+
+document.getElementById("restartBtn").addEventListener("click", resetToScenarioSelect);
+document.getElementById("newPatientBtn").addEventListener("click", resetToScenarioSelect);
+
+/* ============================================================
+   SECTION 11: INIT
+   ============================================================ */
+buildScenarioGrid();
+</script>
+</body>
+</html>
