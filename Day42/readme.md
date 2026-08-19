@@ -1,0 +1,21 @@
+# Day 42 — Personal Financial Command Center
+
+- [ ] Read the provided resources.
+- [ ] Watch the solution video.
+- [ ] Open Claude.
+- [ ] Set Claude effort level to Low.
+- [ ] Start a new conversation.
+- [ ] Paste the Personal Financial Command Center prompt.
+- [ ] Answer Claude's interview questions.
+- [ ] Generate the complete HTML application.
+- [ ] Save the generated HTML file.
+- [ ] Open it locally in your browser.
+- [ ] Explore every financial module.
+- [ ] Review your financial health score and AI recommendations.
+- [ ] Try the what-if simulations.
+- [ ] Take screenshots.
+- [ ] Create a `Day42` folder in your GitHub repository.
+- [ ] Create a `day42.md` file.
+- [ ] Upload screenshots, generated HTML file, and key learnings.
+- [ ] Commit and push the changes.
+- [ ] Submit the GitHub commit URL.
