@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Workflow Architect — Instagram Personal Brand Growth</title>
+<style>
+  :root{
+    --paper:#fbf9f6;
+    --ink:#17131c;
+    --ink-soft:#4a4453;
+    --line: rgba(23,19,28,0.12);
+    --plum:#a52c62;
+    --plum-deep:#7c1f49;
+    --amber:#dd9a34;
+    --lavender:#8577ab;
+    --card:#ffffff;
+    --ring-track: rgba(23,19,28,0.09);
+    --shadow: 0 1px 2px rgba(23,19,28,0.04), 0 8px 24px rgba(23,19,28,0.06);
+    --radius: 14px;
+    --font-display: Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Times New Roman', serif;
+    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  }
+  [data-theme="dark"]{
+    --paper:#15121a;
+    --ink:#f2ede7;
+    --ink-soft:#c3bac9;
+    --line: rgba(242,237,231,0.12);
+    --plum:#e0578f;
+    --plum-deep:#f2ede7;
+    --amber:#f0b45c;
+    --lavender:#a99bd1;
+    --card:#1e1a24;
+    --ring-track: rgba(242,237,231,0.12);
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 30px rgba(0,0,0,0.35);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--paper); color:var(--ink); font-family:var(--font-body);
+    -webkit-font-smoothing:antialiased; transition:background .3s ease, color .3s ease;
+  }
+  ::selection{background:var(--plum); color:#fff;}
+  a{color:inherit;}
+  button{font-family:inherit; cursor:pointer;}
+  .eyebrow{
+    font-family:var(--font-mono); text-transform:uppercase; letter-spacing:.14em; font-size:11px;
+    color:var(--plum); font-weight:600;
+  }
+  h1,h2,h3,h4{font-family:var(--font-display); font-weight:400; margin:0; letter-spacing:-0.01em;}
+
+  /* ===== Ring motif ===== */
+  .ring{
+    --p: 0;
+    width:56px; height:56px; border-radius:50%; flex-shrink:0;
+    background: conic-gradient(var(--plum) calc(var(--p)*1%), var(--ring-track) 0);
+    display:flex; align-items:center; justify-content:center; position:relative;
+  }
+  .ring::after{
+    content:''; position:absolute; inset:4px; border-radius:50%; background:var(--paper);
+  }
+  .ring .ring-label{ position:relative; font-family:var(--font-mono); font-size:11px; font-weight:700; z-index:2;}
+
+  /* ===== Top bar ===== */
+  .topbar{
+    position:sticky; top:0; z-index:50; display:flex; align-items:center; justify-content:space-between;
+    padding:14px 22px; background:color-mix(in srgb, var(--paper) 88%, transparent); backdrop-filter: blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .brand{display:flex; align-items:center; gap:10px;}
+  .brand-mark{
+    width:30px; height:30px; border-radius:9px; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:2px; padding:4px;
+    background:var(--ink);
+  }
+  .brand-mark span{border-radius:2px; background:var(--paper);}
+  .brand-mark span:nth-child(1){background:var(--plum);}
+  .brand-mark span:nth-child(4){background:var(--amber);}
+  .brand-name{font-family:var(--font-display); font-size:18px;}
+  .brand-sub{font-family:var(--font-mono); font-size:10px; color:var(--ink-soft); letter-spacing:.08em; text-transform:uppercase;}
+  .top-actions{display:flex; align-items:center; gap:8px;}
+  .icon-btn{
+    width:38px; height:38px; border-radius:50%; border:1px solid var(--line); background:var(--card);
+    display:flex; align-items:center; justify-content:center; font-size:16px; transition:transform .15s ease, border-color .15s ease;
+  }
+  .icon-btn:hover{transform:translateY(-1px); border-color:var(--plum);}
+
+  /* ===== Layout ===== */
+  .app{display:grid; grid-template-columns:280px 1fr; min-height:100vh;}
+  .sidebar{
+    border-right:1px solid var(--line); padding:20px 14px 40px; position:sticky; top:65px; height:calc(100vh - 65px); overflow-y:auto;
+  }
+  .grid-nav{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-bottom:22px; padding:10px; border:1px solid var(--line); border-radius:var(--radius); background:var(--card);
+  }
+  .grid-nav button{
+    aspect-ratio:1; border-radius:6px; border:none; background:var(--ring-track); font-family:var(--font-mono); font-size:10px; font-weight:700;
+    display:flex; align-items:center; justify-content:center; color:var(--ink-soft); transition:.15s ease;
+  }
+  .grid-nav button.done{background:var(--plum); color:#fff;}
+  .grid-nav button.active{outline:2px solid var(--amber); outline-offset:2px;}
+  .nav-section-label{font-family:var(--font-mono); font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); margin:18px 4px 8px;}
+  .nav-list{list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:2px;}
+  .nav-list button{
+    width:100%; text-align:left; background:none; border:none; padding:9px 10px; border-radius:9px; font-size:13.5px; color:var(--ink-soft);
+    display:flex; align-items:center; gap:8px; transition:.15s ease;
+  }
+  .nav-list button:hover{background:var(--ring-track); color:var(--ink);}
+  .nav-list button.active{background:var(--card); color:var(--ink); box-shadow:var(--shadow); font-weight:600;}
+  .nav-list .num{font-family:var(--font-mono); font-size:10px; color:var(--plum); width:16px;}
+
+  main{padding:32px 40px 100px; max-width:920px;}
+  .hero{margin-bottom:36px;}
+  .hero h1{font-size:38px; line-height:1.08; margin:10px 0 12px; max-width:600px;}
+  .hero p{color:var(--ink-soft); max-width:560px; font-size:15px; line-height:1.6;}
+  .hero-progress{
+    display:flex; align-items:center; gap:16px; margin-top:24px; padding:16px 18px; background:var(--card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); max-width:560px;
+  }
+  .hero-progress .txt{font-size:13px; color:var(--ink-soft);}
+  .hero-progress .txt strong{color:var(--ink); font-family:var(--font-display); font-size:18px; display:block;}
+
+  .tabs{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:28px; border-bottom:1px solid var(--line); padding-bottom:0;}
+  .tab-btn{
+    background:none; border:none; padding:9px 14px; font-size:13px; color:var(--ink-soft); border-bottom:2px solid transparent; margin-bottom:-1px; font-weight:500;
+  }
+  .tab-btn.active{color:var(--plum); border-bottom-color:var(--plum);}
+
+  section.view{display:none; animation:fade .3s ease;}
+  section.view.active{display:block;}
+  @keyframes fade{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);}}
+
+  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:22px 24px; margin-bottom:18px;}
+  .card h3{font-size:15px; margin-bottom:12px; display:flex; align-items:center; gap:8px;}
+  .card h3 .dot{width:7px; height:7px; border-radius:50%; background:var(--plum);}
+  .stage-head{display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:24px;}
+  .stage-head .stage-ring{width:64px;height:64px;}
+  .star-btn{background:none; border:1px solid var(--line); border-radius:50%; width:36px; height:36px; font-size:15px; display:flex; align-items:center; justify-content:center; color:var(--ink-soft);}
+  .star-btn.saved{color:var(--amber); border-color:var(--amber);}
+
+  .two-col{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media(max-width:760px){.two-col{grid-template-columns:1fr;}}
+
+  ul.clean{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:9px;}
+  ul.clean li{font-size:13.5px; line-height:1.55; padding-left:16px; position:relative; color:var(--ink);}
+  ul.clean li::before{content:'—'; position:absolute; left:0; color:var(--plum);}
+  ul.task-list li{padding-left:0; display:flex; gap:9px; align-items:flex-start;}
+  ul.task-list li::before{display:none;}
+  ul.task-list input[type=checkbox]{margin-top:3px; accent-color:var(--plum); width:15px; height:15px; flex-shrink:0;}
+  ul.task-list li.checked span{text-decoration:line-through; color:var(--ink-soft);}
+
+  .tool-chip{
+    display:inline-flex; align-items:center; gap:6px; background:var(--ring-track); border-radius:20px; padding:6px 12px 6px 6px; font-size:12.5px; margin:4px 6px 4px 0;
+  }
+  .tool-chip .avatar{width:20px; height:20px; border-radius:50%; background:var(--plum); color:#fff; font-family:var(--font-mono); font-size:9px; display:flex; align-items:center; justify-content:center; font-weight:700;}
+  .tool-block{border-left:3px solid var(--plum); padding:10px 0 10px 14px; margin-bottom:14px;}
+  .tool-block .tname{font-weight:700; font-size:14px; margin-bottom:2px;}
+  .tool-block .twhy{font-size:13px; color:var(--ink-soft); line-height:1.5; margin-bottom:4px;}
+  .tool-block .talt{font-size:11.5px; font-family:var(--font-mono); color:var(--lavender);}
+
+  .prompt-box{
+    background: color-mix(in srgb, var(--ink) 5%, var(--card)); border:1px dashed var(--line); border-radius:10px; padding:12px 14px; font-family:var(--font-mono); font-size:12.5px; line-height:1.6; margin-bottom:10px; position:relative; white-space:pre-wrap;
+  }
+  .copy-btn{position:absolute; top:8px; right:8px; font-size:10px; border:1px solid var(--line); background:var(--card); border-radius:6px; padding:3px 8px; font-family:var(--font-body); color:var(--ink-soft);}
+
+  .meta-row{display:flex; gap:20px; flex-wrap:wrap; margin-bottom:20px;}
+  .meta-item{font-size:12px; color:var(--ink-soft);}
+  .meta-item strong{display:block; font-family:var(--font-display); font-size:16px; color:var(--ink); font-weight:400;}
+
+  textarea.notes{
+    width:100%; min-height:90px; border:1px solid var(--line); border-radius:10px; padding:12px; font-family:var(--font-body); font-size:13px; background:var(--paper); color:var(--ink); resize:vertical;
+  }
+
+  .flow{display:flex; align-items:stretch; gap:0; overflow-x:auto; padding:6px 2px 18px;}
+  .flow-step{
+    min-width:150px; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px; margin-right:26px; position:relative; flex-shrink:0; cursor:pointer; transition:.15s ease;
+  }
+  .flow-step:hover{border-color:var(--plum); transform:translateY(-2px);}
+  .flow-step:not(:last-child)::after{
+    content:'→'; position:absolute; right:-24px; top:50%; transform:translateY(-50%); color:var(--ink-soft); font-size:16px;
+  }
+  .flow-step .fn{font-family:var(--font-mono); font-size:10px; color:var(--plum); font-weight:700;}
+  .flow-step .ft{font-size:13px; font-weight:600; margin-top:4px;}
+
+  table{width:100%; border-collapse:collapse; font-size:13px;}
+  th,td{text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:top;}
+  th{font-family:var(--font-mono); font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); font-weight:600;}
+
+  .tree-node{margin-left:0;}
+  .tree-q{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px 14px; font-weight:600; font-size:13.5px; margin-bottom:8px;}
+  .tree-opts{display:flex; flex-direction:column; gap:6px; margin:8px 0 16px 18px; padding-left:14px; border-left:2px solid var(--line);}
+  .tree-opt{background:var(--ring-track); border:none; text-align:left; padding:9px 12px; border-radius:8px; font-size:13px; color:var(--ink);}
+  .tree-opt:hover{background:var(--plum); color:#fff;}
+  .tree-result{background:color-mix(in srgb, var(--amber) 15%, var(--card)); border:1px solid var(--amber); border-radius:10px; padding:12px 14px; font-size:13px; margin:8px 0 16px 32px;}
+
+  .stack-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px;}
+  .stack-item{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px;}
+  .stack-item .role{font-family:var(--font-mono); font-size:10px; text-transform:uppercase; color:var(--plum); letter-spacing:.08em;}
+  .stack-item .tool{font-size:15px; font-weight:700; margin:4px 0 2px;}
+  .stack-item .desc{font-size:12px; color:var(--ink-soft); line-height:1.5;}
+
+  .kw-pill{display:inline-block; background:var(--ring-track); border-radius:20px; padding:6px 13px; font-size:12px; margin:3px 5px 3px 0;}
+  .res-link{display:flex; justify-content:space-between; align-items:center; padding:11px 0; border-bottom:1px solid var(--line); font-size:13.5px;}
+  .res-link:last-child{border-bottom:none;}
+  .res-link .tag{font-family:var(--font-mono); font-size:10px; color:var(--ink-soft);}
+
+  .footer-note{text-align:center; padding:40px 20px; color:var(--ink-soft); font-size:12px;}
+
+  @media(max-width:900px){
+    .app{grid-template-columns:1fr;}
+    .sidebar{position:fixed; left:0; top:65px; bottom:0; width:270px; background:var(--paper); z-index:60; transform:translateX(-100%); transition:transform .25s ease; box-shadow:var(--shadow);}
+    .sidebar.open{transform:translateX(0);}
+    main{padding:24px 18px 100px;}
+    .hero h1{font-size:28px;}
+  }
+
+  @media print{
+    .sidebar,.topbar,.tabs,.top-actions,.star-btn,.copy-btn,textarea.notes{display:none !important;}
+    section.view{display:block !important;}
+    main{max-width:100%; padding:0;}
+    body{background:#fff; color:#000;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <button class="icon-btn" id="menuBtn" style="display:none;" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
+    <div class="brand-mark"><span></span><span></span><span></span><span></span></div>
+    <div>
+      <div class="brand-name">AI Workflow Architect</div>
+      <div class="brand-sub">Instagram · Personal Brand Growth</div>
+    </div>
+  </div>
+  <div class="top-actions">
+    <button class="icon-btn" title="Print workflow guide" onclick="window.print()">🖨</button>
+    <button class="icon-btn" title="Toggle dark mode" onclick="toggleTheme()">🌓</button>
+  </div>
+</div>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="grid-nav" id="gridNav"></div>
+    <div class="nav-section-label">Workflow</div>
+    <ul class="nav-list" id="stageNav"></ul>
+    <div class="nav-section-label">Wrap-up</div>
+    <ul class="nav-list">
+      <li><button data-view="summary" onclick="showView('summary')"><span class="num">✓</span>Summary & Stack</button></li>
+      <li><button data-view="resources" onclick="showView('resources')"><span class="num">✓</span>Resources & Prompts</button></li>
+      <li><button data-view="bookmarks" onclick="showView('bookmarks')"><span class="num">★</span>Bookmarks</button></li>
+    </ul>
+  </aside>
+
+  <main>
+    <div class="hero" id="heroBlock"></div>
+
+    <div class="tabs" id="tabs">
+      <button class="tab-btn active" onclick="setTab('overview')" data-tab="overview">Overview</button>
+      <button class="tab-btn" onclick="setTab('diagram')" data-tab="diagram">Flow Diagram</button>
+      <button class="tab-btn" onclick="setTab('decision')" data-tab="decision">Decision Tree</button>
+      <button class="tab-btn" onclick="setTab('compare')" data-tab="compare">Tool Comparison</button>
+    </div>
+
+    <section class="view active" id="view-overview"></section>
+    <section class="view" id="view-diagram"></section>
+    <section class="view" id="view-decision"></section>
+    <section class="view" id="view-compare"></section>
+    <section class="view" id="view-summary"></section>
+    <section class="view" id="view-resources"></section>
+    <section class="view" id="view-bookmarks"></section>
+
+    <div class="footer-note">AI Workflow Architect · Built for creators scaling a personal brand on Instagram · Data saved locally in your browser</div>
+  </main>
+</div>
+
+<script>
+/* ============ DATA ============ */
+const STAGES = [
+{
+  id:'foundation', title:'Foundation & Niche Strategy', time:'3–5 hrs (one-time)',
+  objectives:[
+    'Define a niche specific enough to signal expertise, broad enough to sustain content',
+    'Identify the ideal follower avatar and what transformation you offer them',
+    'Set 90-day growth and engagement targets'
+  ],
+  tasks:[
+    'Audit 10 accounts in your space; log what works and white space you can own',
+    'Write a one-line positioning statement (topic + audience + outcome)',
+    'Define 4–6 content pillars that all future posts map back to',
+    'Set baseline metrics: followers, reach, saves, profile visits'
+  ],
+  tools:[
+    {name:'Claude', why:'Best for synthesizing competitor research into a clear positioning statement and content pillar map from messy notes.', alt:'ChatGPT, Gemini'},
+    {name:'Perplexity', why:'Fast, cited research on niche trends and audience pain points without hallucinated stats.', alt:'You.com, Bing Copilot'},
+    {name:'Exploding Topics', why:'Surfaces rising sub-niches before they saturate, useful for picking an ownable angle.', alt:'Google Trends'}
+  ],
+  prompts:[
+    'Act as a brand strategist. Based on these 10 competitor bios and post themes [paste], identify 3 positioning gaps I could credibly own, and explain the audience pain point each one solves.',
+    'Turn this list of things I know and enjoy [paste] into 5 possible content pillars for a personal Instagram brand, each with a one-sentence promise to the follower.'
+  ],
+  best:['Pick a niche you can sustain for 12 months, not 12 posts','Write positioning in the follower\'s words, not your résumé','Revisit pillars every 90 days — don\'t lock them forever'],
+  mistakes:['Choosing a niche that\'s only a topic, not a transformation','Copying a competitor\'s pillars instead of finding your gap','Skipping metrics baselines, making growth impossible to prove'],
+  outputs:['One-line positioning statement','4–6 named content pillars','Competitor teardown doc','90-day KPI targets sheet']
+},
+{
+  id:'identity', title:'Brand Identity & Profile Optimization', time:'2–4 hrs (one-time + quarterly refresh)',
+  objectives:[
+    'Make the profile convert a visitor into a follower within 3 seconds',
+    'Establish a consistent visual system across grid, Reels covers, and Stories',
+    'Build a bio, link-in-bio, and Highlights structure that supports the funnel'
+  ],
+  tasks:[
+    'Write a bio using the hook + proof + CTA formula',
+    'Design a simple visual system: 2–3 fonts, a color trio, consistent crop ratio',
+    'Set up Highlight covers that map to pillars (not random moments)',
+    'Configure link-in-bio with 3–5 destinations max'
+  ],
+  tools:[
+    {name:'Canva (Magic Design)', why:'Generates on-brand templates for grid tiles, Highlight covers, and Reels covers fast, with brand kit locking so consistency holds without manual work.', alt:'Adobe Express'},
+    {name:'Claude', why:'Drafts and A/B-tests multiple bio variants against the hook + proof + CTA formula in seconds.', alt:'Copy.ai'},
+    {name:'Coolors / Khroma', why:'Generates a defensible color trio fast instead of guessing at hex codes.', alt:'Adobe Color'}
+  ],
+  prompts:[
+    'Write 5 Instagram bio variants for a [niche] creator who helps [audience] achieve [outcome]. Each under 150 characters, using a hook line, one proof point, and a clear CTA.',
+    'I have these 3 brand colors and this niche [describe]. Suggest a consistent visual system for grid posts, Reels covers, and Highlight icons that feels cohesive but not repetitive.'
+  ],
+  best:['Test 2 bio versions for 2 weeks and compare profile-visit-to-follow rate','Keep Highlight covers in one style set, refresh quarterly','Design for thumbnail size — most people see your grid tiny'],
+  mistakes:['Overloading the bio with every credential instead of one clear promise','Changing visual identity every month, killing recognizability','Linking to a homepage instead of a specific landing action'],
+  outputs:['Finalized bio copy','Brand color + type mini-system','9 Highlight covers','Optimized link-in-bio page']
+},
+{
+  id:'planning', title:'Content Planning & Calendar', time:'2 hrs/week',
+  objectives:[
+    'Turn content pillars into a repeatable weekly content mix',
+    'Batch-plan topics 2–4 weeks ahead to reduce daily decision fatigue',
+    'Balance formats: Reels, carousels, single image, Stories'
+  ],
+  tasks:[
+    'Brainstorm 20–30 topic ideas per pillar per month',
+    'Slot topics into a weekly content mix (e.g., 3 Reels, 2 carousels, daily Stories)',
+    'Build a content calendar with hooks, format, and CTA pre-assigned',
+    'Flag trending audio/formats worth adapting to your niche'
+  ],
+  tools:[
+    {name:'Claude / ChatGPT', why:'Best for turning a single pillar into 20+ distinct, non-repetitive post angles in one pass, then organizing them into a calendar structure.', alt:'Notion AI'},
+    {name:'Notion (AI-assisted)', why:'Central calendar database that links ideas → drafts → assets → performance in one view.', alt:'Airtable, Trello'},
+    {name:'Later / Metricool', why:'Visual grid calendar with best-time-to-post suggestions grounded in your own audience data.', alt:'Buffer, Sprout Social'}
+  ],
+  prompts:[
+    'Generate 25 Instagram content ideas for the pillar "[pillar name]" targeting [audience]. For each, give a working hook, best format (Reel/carousel/single image), and the core takeaway.',
+    'Turn this list of 25 raw ideas [paste] into a 4-week content calendar with a balanced mix of 40% Reels, 35% carousels, 25% single image, spacing similar topics apart.'
+  ],
+  best:['Batch ideation monthly, batch scripting/shooting weekly','Keep a running "idea bank" so you\'re never starting from zero','Leave 15–20% of slots open for trend-jacking'],
+  mistakes:['Planning content in isolation from what\'s performing','Overplanning so rigidly there\'s no room for timely posts','Repeating the same hook structure until it goes stale'],
+  outputs:['Monthly idea bank (75–100 ideas)','4-week visual content calendar','Pre-assigned hooks and CTAs per post']
+},
+{
+  id:'creation', title:'Content Creation & Filming', time:'3–6 hrs/week',
+  objectives:[
+    'Script and shoot Reels efficiently in batches',
+    'Produce carousel and static content that supports saves and shares',
+    'Maintain a raw footage/asset library for reuse'
+  ],
+  tasks:[
+    'Write short scripts or beat sheets for each Reel before filming',
+    'Batch-film 5–10 Reels in a single session using consistent lighting/setup',
+    'Shoot or source supporting photos and B-roll for carousels',
+    'Log and organize raw files immediately after each session'
+  ],
+  tools:[
+    {name:'CapCut (AI script-to-shotlist)', why:'Turns a written hook + script into a shot list and auto-captions footage, cutting editing prep time significantly.', alt:'InShot'},
+    {name:'Claude', why:'Writes tight 15–30 second Reel scripts with a hook in the first 1.5 seconds, matched to your voice.', alt:'ChatGPT'},
+    {name:'ElevenLabs', why:'Generates clean voiceover for faceless or B-roll-driven Reels when on-camera filming isn\'t possible that day.', alt:'Descript overdub'}
+  ],
+  prompts:[
+    'Write a 25-second Reel script on "[topic]" for a [niche] audience. Structure: pattern-interrupt hook (first 1.5 sec), 3 quick value beats, one clear CTA. Keep sentences under 8 words.',
+    'I\'m filming 6 Reels today on these topics [list]. Give me a shot list and b-roll suggestions for each so I can batch film efficiently in one setup.'
+  ],
+  best:['Write the hook before anything else — everything else is built to earn it','Batch by setup/location, not by topic, to save setup time','Film 20% more B-roll than you think you need'],
+  mistakes:['Filming without a script and rambling for 45 seconds before the point','Ignoring vertical 9:16 framing and native captions on-camera','Losing raw files with no naming or folder convention'],
+  outputs:['5–10 filmed Reels per batch','Scripts/beat sheets archive','Organized raw asset library']
+},
+{
+  id:'editing', title:'Editing & Visual Design', time:'2–4 hrs/week',
+  objectives:[
+    'Edit Reels for retention: fast cuts, captions, pacing',
+    'Design carousels and static posts that are scroll-stopping and on-brand',
+    'Keep a template system so editing doesn\'t start from scratch each time'
+  ],
+  tasks:[
+    'Cut Reels to remove dead air and add pattern-interrupts every 2–3 seconds',
+    'Add burned-in captions for sound-off viewing',
+    'Design carousel slides using a locked template',
+    'Color-grade or filter consistently across the grid'
+  ],
+  tools:[
+    {name:'CapCut', why:'Free, fast, mobile-first Reels editing with auto-captions, templates, and keyframing built for short-form retention.', alt:'Adobe Premiere Rush'},
+    {name:'Canva', why:'Reusable carousel templates with brand kit lock keep design consistent without a designer.', alt:'Figma'},
+    {name:'Photoroom', why:'One-tap background removal and cleanup for product or portrait shots used in posts.', alt:'Adobe Photoshop (AI fill)'}
+  ],
+  prompts:[
+    'I have this Reel script [paste]. Suggest exact caption text, pacing cut points, and where to add a pattern-interrupt (zoom, text pop, sound effect) to maximize watch-through.',
+    'Turn this 300-word explainer [paste] into an 8-slide Instagram carousel outline: one idea per slide, a strong slide-1 hook, and a slide-8 CTA.'
+  ],
+  best:['Front-load the strongest visual/line in the first slide or second','Keep on-screen caption font size legible on a small phone screen','Reuse a template so viewers recognize your posts mid-scroll'],
+  mistakes:['Over-editing with too many effects that distract from the message','Inconsistent caption fonts across posts, hurting brand recall','Making carousels text-heavy instead of one idea per slide'],
+  outputs:['Edited, caption-burned Reels','Branded carousel template set','Consistent grid color treatment']
+},
+{
+  id:'copy', title:'Captions & Copywriting', time:'1–2 hrs/week',
+  objectives:[
+    'Write captions that extend watch time and drive saves/comments',
+    'Develop a consistent brand voice across all copy',
+    'Build hashtag and keyword sets that support discoverability'
+  ],
+  tasks:[
+    'Draft captions with a hook line, value/story body, and CTA',
+    'Write 2–3 caption variants per post for A/B learning',
+    'Maintain a bank of 3 hashtag sets rotated by pillar',
+    'Optimize alt text and on-post keywords for Instagram SEO'
+  ],
+  tools:[
+    {name:'Claude', why:'Matches your established voice closely across dozens of captions and avoids generic "cookie-cutter" AI phrasing when given voice examples.', alt:'Jasper'},
+    {name:'Copy.ai', why:'Quick hook and CTA variant generation when you need volume fast.', alt:'Writesonic'},
+    {name:'Flick', why:'Hashtag research grounded in real reach/competition data instead of guesswork.', alt:'Display Purposes'}
+  ],
+  prompts:[
+    'Here are 5 examples of my past captions [paste]. Match this voice and write a caption for a Reel about "[topic]": hook line, 2–3 sentence value/story body, one clear CTA, no generic phrases like "game changer" or "let\'s dive in."',
+    'Suggest 3 hashtag sets (10 tags each) for a post about "[topic]" in the [niche] space: one broad-reach set, one niche-specific set, one community/branded set.'
+  ],
+  best:['Put the hook in the caption\'s first line — it\'s the only part visible before "more"','Ask a question or invite a specific comment to boost engagement signal','Rotate hashtag sets to avoid being flagged as spammy'],
+  mistakes:['Burying the CTA at the bottom of a wall of text','Using the same 30 hashtags on every single post','Letting AI-generated copy keep generic phrasing unedited'],
+  outputs:['Finalized captions per post','Rotating hashtag set bank','Voice/style guide document']
+},
+{
+  id:'publish', title:'Publishing & Optimization', time:'1 hr/week + daily posting',
+  objectives:[
+    'Publish consistently at times your specific audience is active',
+    'Optimize each post at launch (cover, tags, location, collab)',
+    'Maintain a sustainable, repeatable posting cadence'
+  ],
+  tasks:[
+    'Schedule posts using data-backed best-times-to-post',
+    'Set Reels covers, tag collaborators/brands, add location if relevant',
+    'Cross-post Reels to relevant formats without over-recycling',
+    'Track first-hour performance and adjust future scheduling'
+  ],
+  tools:[
+    {name:'Metricool', why:'Combines scheduling with audience-specific best-time analytics rather than generic industry averages.', alt:'Later, Buffer'},
+    {name:'Instagram Creator Studio (native)', why:'Native scheduling avoids third-party reach throttling some platforms report.', alt:'Meta Business Suite'},
+    {name:'Claude', why:'Quickly repurposes one Reel into a caption for a carousel version or Story sequence without a full rewrite.', alt:'Repurpose.io'}
+  ],
+  prompts:[
+    'Based on this audience activity data [paste/describe], suggest the 3 best posting windows this week for Reels vs static posts.',
+    'Repurpose this Reel script [paste] into: (1) a 3-slide Story sequence, (2) a short caption for a static repost, keeping the core message intact.'
+  ],
+  best:['Post consistently even at lower volume rather than sporadically at high volume','Watch the first 30–60 minutes of performance — it signals algorithmic push','Space out reposted/repurposed content by at least a week'],
+  mistakes:['Posting at random times with no data behind the choice','Ignoring cover image design, hurting grid appeal','Cross-posting identical content everywhere with zero adaptation'],
+  outputs:['Populated posting schedule','Optimized post metadata (covers, tags, location)','First-hour performance log']
+},
+{
+  id:'engage', title:'Engagement & Community Building', time:'3–5 hrs/week',
+  objectives:[
+    'Build genuine two-way relationships with the audience',
+    'Turn commenters and DMs into a recognizable community',
+    'Use engagement pods and collabs strategically, not spammy'
+  ],
+  tasks:[
+    'Reply to comments within the first hour of posting',
+    'Proactively engage with 15–20 relevant accounts daily',
+    'Run weekly Story interactions (polls, Q&A, quizzes)',
+    'Triage and respond to DMs with templated-but-personal replies'
+  ],
+  tools:[
+    {name:'Claude', why:'Drafts a bank of personalized-feeling DM and comment reply templates for common inquiries, cutting response time.', alt:'ManyChat AI'},
+    {name:'ManyChat', why:'Automates DM keyword triggers (e.g., comment "GUIDE" to receive a link) without feeling like a bot.', alt:'MobileMonkey'},
+    {name:'Flick / Sked Social', why:'Surfaces top comments and community trends to respond to at scale.', alt:'Later'}
+  ],
+  prompts:[
+    'Write 5 warm, non-generic reply templates I can adapt for common comment types on my posts (compliment, question, disagreement, personal story shared, spam-adjacent).',
+    'Draft 3 Instagram Story interactive prompts (poll, quiz, question sticker) related to "[topic]" that would spark genuine audience replies.'
+  ],
+  best:['Reply with a question back to extend the conversation','Engage on other accounts before and after you post, not only your own','Keep automation feeling personal — never fully hands-off DMs'],
+  mistakes:['Only replying with emojis, missing relationship-building chances','Buying engagement pods that trigger reach penalties','Letting DMs pile up unanswered for days'],
+  outputs:['Comment/DM reply template bank','Weekly Story engagement series','Growing list of genuine community connections']
+},
+{
+  id:'analytics', title:'Analytics & Iteration', time:'1–2 hrs/week',
+  objectives:[
+    'Identify what content, hooks, and formats actually drive growth',
+    'Turn insights into next month\'s content plan',
+    'Track brand-level KPIs, not just vanity metrics'
+  ],
+  tasks:[
+    'Review weekly Reels/post performance against saves, shares, watch time',
+    'Identify top 3 and bottom 3 posts, and diagnose why',
+    'Update content pillars/formats based on 30-day trends',
+    'Report monthly KPI progress against the 90-day targets'
+  ],
+  tools:[
+    {name:'Metricool / Iconosquare', why:'Deeper, more digestible analytics than native Instagram Insights, with pillar/tag-level breakdowns.', alt:'Native Instagram Insights'},
+    {name:'Claude', why:'Turns raw exported analytics into a plain-language "what worked and why" summary with next-step recommendations.', alt:'ChatGPT Data Analysis'},
+    {name:'Google Sheets (AI formulas)', why:'Lightweight, flexible KPI tracker that\'s easy to customize per creator.', alt:'Airtable'}
+  ],
+  prompts:[
+    'Here is my post performance data for the last 30 days [paste/export]. Identify the top 3 performing posts and bottom 3, look for a pattern in hook style, format, or topic, and recommend 3 adjustments for next month.',
+    'Summarize this month\'s KPI data [paste] against my 90-day targets [paste]. Flag what\'s on track, what\'s behind, and one specific action to close the biggest gap.'
+  ],
+  best:['Judge Reels primarily on average watch time and shares, not just views','Give a new format at least 5–8 posts before judging it','Revisit content pillars every 90 days based on real data'],
+  mistakes:['Chasing follower count while ignoring saves/shares that signal quality','Making format decisions off a single post\'s performance','Never closing the loop — collecting data but not acting on it'],
+  outputs:['Monthly performance report','Updated content strategy based on data','KPI tracker vs. 90-day targets']
+},
+{
+  id:'scale', title:'Growth & Monetization', time:'Ongoing, 2–4 hrs/week',
+  objectives:[
+    'Convert an engaged following into sustainable income or opportunity',
+    'Build systems (templates, SOPs) that let the workflow scale without burnout',
+    'Diversify reach beyond the algorithm (email, community, other platforms)'
+  ],
+  tasks:[
+    'Pitch or apply for brand partnerships aligned with your niche',
+    'Build one owned asset (email list, community, digital product)',
+    'Document your workflow as SOPs for future delegation',
+    'Test one new distribution channel (YouTube Shorts, TikTok, newsletter)'
+  ],
+  tools:[
+    {name:'Claude', why:'Drafts brand partnership pitch decks, media kits, and SOP documentation quickly from your existing performance data.', alt:'ChatGPT'},
+    {name:'ConvertKit', why:'Purpose-built creator email tooling to build an owned audience independent of the algorithm.', alt:'Beehiiv, Mailchimp'},
+    {name:'Repurpose.io', why:'Automatically redistributes Reels to TikTok/YouTube Shorts to multiply reach from one production effort.', alt:'Manual cross-posting'}
+  ],
+  prompts:[
+    'Using my performance data and niche [describe], draft a one-page media kit and outreach pitch for brand partnerships, including audience stats placeholders and 3 collaboration ideas.',
+    'Help me turn my current content workflow into a documented SOP so I could eventually hand off editing or scheduling to an assistant. Ask me clarifying questions about my current process first.'
+  ],
+  best:['Only pursue partnerships that fit your niche — mismatched brand deals cost trust','Start monetization small (one digital product) before scaling','Own at least one channel (email/community) outside the algorithm'],
+  mistakes:['Chasing every brand deal regardless of fit, diluting the brand','Scaling content volume before systems/SOPs exist, causing burnout','Relying on a single platform for 100% of distribution'],
+  outputs:['Media kit / partnership pitch','One owned distribution asset (email or community)','Documented workflow SOPs','Second-platform distribution test']
+}
+];
+
+const COMPARE_SETS = [
+  {
+    title:'Caption & Copywriting Assistants',
+    rows:[
+      {name:'Claude', best:'Matching an established brand voice across volume', price:'Free tier / Pro from $20/mo', strength:'Strong at nuance, avoids generic AI phrasing when given voice examples', weakness:'No native scheduling integration'},
+      {name:'ChatGPT', best:'Fast idea generation and brainstorming', price:'Free tier / Plus from $20/mo', strength:'Broad plugin/GPT ecosystem', weakness:'Can drift toward generic phrasing without strong prompting'},
+      {name:'Copy.ai', best:'High-volume short-form variant generation', price:'Free tier / from $36/mo', strength:'Templates built specifically for social captions', weakness:'Less nuanced long-form voice matching'}
+    ]
+  },
+  {
+    title:'Reels Editing Tools',
+    rows:[
+      {name:'CapCut', best:'Fast, mobile-first short-form editing', price:'Free / Pro from $7.99/mo', strength:'Auto-captions, trending templates, keyframing', weakness:'Less precise color grading than desktop NLEs'},
+      {name:'Adobe Premiere Rush', best:'Cross-device pro-grade editing', price:'From $9.99/mo', strength:'Deeper color and audio control', weakness:'Steeper learning curve, heavier app'},
+      {name:'InShot', best:'Simple quick edits on the go', price:'Free / Pro from $3.99/mo', strength:'Lightweight and beginner-friendly', weakness:'Fewer advanced retention-editing features'}
+    ]
+  },
+  {
+    title:'Scheduling & Analytics',
+    rows:[
+      {name:'Metricool', best:'All-in-one scheduling + deep analytics', price:'Free tier / from $18/mo', strength:'Audience-specific best-time data', weakness:'Interface has a learning curve'},
+      {name:'Later', best:'Visual grid planning', price:'Free tier / from $16.67/mo', strength:'Best-in-class visual calendar preview', weakness:'Analytics less deep than Metricool'},
+      {name:'Native Instagram Insights', best:'Zero-cost baseline tracking', price:'Free', strength:'Directly sourced, no data lag', weakness:'No cross-post comparison or export depth'}
+    ]
+  }
+];
+
+/* ============ STATE / STORAGE ============ */
+const LS = {
+  tasks: JSON.parse(localStorage.getItem('awa_tasks')||'{}'),
+  notes: JSON.parse(localStorage.getItem('awa_notes')||'{}'),
+  bookmarks: JSON.parse(localStorage.getItem('awa_bookmarks')||'[]'),
+  theme: localStorage.getItem('awa_theme')||'light'
+};
+function persist(){
+  localStorage.setItem('awa_tasks', JSON.stringify(LS.tasks));
+  localStorage.setItem('awa_notes', JSON.stringify(LS.notes));
+  localStorage.setItem('awa_bookmarks', JSON.stringify(LS.bookmarks));
+}
+document.documentElement.setAttribute('data-theme', LS.theme);
+function toggleTheme(){
+  LS.theme = LS.theme==='dark' ? 'light':'dark';
+  document.documentElement.setAttribute('data-theme', LS.theme);
+  localStorage.setItem('awa_theme', LS.theme);
+}
+
+let currentStage = STAGES[0].id;
+let currentTab = 'overview';
+
+/* ============ RENDER: NAV ============ */
+function stageProgress(stage){
+  const total = stage.tasks.length;
+  const done = stage.tasks.filter((_,i)=>LS.tasks[stage.id+'_'+i]).length;
+  return total? Math.round(done/total*100) : 0;
+}
+function overallProgress(){
+  let total=0, done=0;
+  STAGES.forEach(s=>{ total+=s.tasks.length; s.tasks.forEach((_,i)=>{ if(LS.tasks[s.id+'_'+i]) done++; }); });
+  return total? Math.round(done/total*100) : 0;
+}
+
+function renderNav(){
+  const grid = document.getElementById('gridNav');
+  grid.innerHTML = STAGES.map((s,i)=>{
+    const p = stageProgress(s);
+    return `<button class="${p===100?'done':''} ${currentStage===s.id?'active':''}" title="${s.title}" onclick="selectStage('${s.id}')">${p===100?'✓':(i+1)}</button>`;
+  }).join('');
+
+  const list = document.getElementById('stageNav');
+  list.innerHTML = STAGES.map((s,i)=>`
+    <li><button class="${currentStage===s.id && currentView==='stage' ?'active':''}" onclick="selectStage('${s.id}')">
+      <span class="num">${String(i+1).padStart(2,'0')}</span>${s.title}
+    </button></li>`).join('');
+}
+
+/* ============ RENDER: HERO ============ */
+function renderHero(){
+  const p = overallProgress();
+  document.getElementById('heroBlock').innerHTML = `
+    <div class="eyebrow">End-to-End Workflow</div>
+    <h1>Instagram Personal Brand Growth</h1>
+    <p>A complete, stage-by-stage build: from niche strategy to monetized, systemized growth — with the AI tools, prompts, and decisions mapped for each step.</p>
+    <div class="hero-progress">
+      <div class="ring" style="--p:${p}"><span class="ring-label">${p}%</span></div>
+      <div class="txt"><strong>${p}% complete</strong>${STAGES.length} stages · check off tasks as you go, saved automatically in your browser</div>
+    </div>`;
+}
+
+/* ============ RENDER: TABS / VIEWS ============ */
+let currentView = 'stage';
+function setTab(tab){
+  currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+  ['overview','diagram','decision','compare'].forEach(v=>{
+    document.getElementById('view-'+v).classList.toggle('active', v===tab);
+  });
+  ['summary','resources','bookmarks'].forEach(v=> document.getElementById('view-'+v).classList.remove('active'));
+  document.getElementById('tabs').style.display='flex';
+  currentView='stage';
+  renderNav();
+}
+
+function showView(name){
+  currentView = name;
+  document.getElementById('tabs').style.display='none';
+  ['overview','diagram','decision','compare','summary','resources','bookmarks'].forEach(v=>{
+    document.getElementById('view-'+v).classList.toggle('active', v===name);
+  });
+  if(name==='summary') renderSummary();
+  if(name==='resources') renderResources();
+  if(name==='bookmarks') renderBookmarks();
+  renderNav();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function selectStage(id){
+  currentStage = id;
+  currentView = 'stage';
+  document.getElementById('tabs').style.display='flex';
+  renderNav();
+  renderOverview();
+  renderDiagram();
+  setTab(currentTab);
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function isBookmarked(id){ return LS.bookmarks.includes(id); }
+function toggleBookmark(id){
+  if(isBookmarked(id)) LS.bookmarks = LS.bookmarks.filter(b=>b!==id);
+  else LS.bookmarks.push(id);
+  persist();
+  renderOverview();
+}
+
+/* ---- Overview (stage detail) ---- */
+function renderOverview(){
+  const s = STAGES.find(x=>x.id===currentStage);
+  const p = stageProgress(s);
+  const idx = STAGES.findIndex(x=>x.id===currentStage);
+  document.getElementById('view-overview').innerHTML = `
+    <div class="stage-head">
+      <div style="display:flex; gap:16px; align-items:center;">
+        <div class="ring stage-ring" style="--p:${p}"><span class="ring-label">${p}%</span></div>
+        <div>
+          <div class="eyebrow">Stage ${String(idx+1).padStart(2,'0')} / ${STAGES.length}</div>
+          <h2 style="font-size:24px; margin-top:4px;">${s.title}</h2>
+        </div>
+      </div>
+      <button class="star-btn ${isBookmarked(s.id)?'saved':''}" onclick="toggleBookmark('${s.id}')" title="Bookmark this stage">★</button>
+    </div>
+
+    <div class="meta-row">
+      <div class="meta-item">Estimated time<strong>${s.time}</strong></div>
+      <div class="meta-item">Tasks<strong>${s.tasks.length}</strong></div>
+      <div class="meta-item">AI tools<strong>${s.tools.length}</strong></div>
+    </div>
+
+    <div class="two-col">
+      <div class="card"><h3><span class="dot"></span>Objectives</h3><ul class="clean">${s.objectives.map(o=>`<li>${o}</li>`).join('')}</ul></div>
+      <div class="card"><h3><span class="dot"></span>Tasks</h3><ul class="clean task-list" id="taskList">
+        ${s.tasks.map((t,i)=>{
+          const key = s.id+'_'+i; const checked = !!LS.tasks[key];
+          return `<li class="${checked?'checked':''}"><input type="checkbox" ${checked?'checked':''} onchange="toggleTask('${key}')"><span>${t}</span></li>`;
+        }).join('')}
+      </ul></div>
+    </div>
+
+    <div class="card">
+      <h3><span class="dot"></span>Best AI Tools For This Stage</h3>
+      ${s.tools.map(t=>`
+        <div class="tool-block">
+          <div class="tname">${t.name}</div>
+          <div class="twhy">${t.why}</div>
+          <div class="talt">Alternatives: ${t.alt}</div>
+        </div>`).join('')}
+    </div>
+
+    <div class="card">
+      <h3><span class="dot"></span>Prompt Examples</h3>
+      ${s.prompts.map(p=>`<div class="prompt-box"><button class="copy-btn" onclick="copyPrompt(this)">Copy</button>${p}</div>`).join('')}
+    </div>
+
+    <div class="two-col">
+      <div class="card"><h3><span class="dot"></span>Best Practices</h3><ul class="clean">${s.best.map(o=>`<li>${o}</li>`).join('')}</ul></div>
+      <div class="card"><h3><span class="dot"></span>Common Mistakes</h3><ul class="clean">${s.mistakes.map(o=>`<li>${o}</li>`).join('')}</ul></div>
+    </div>
+
+    <div class="card"><h3><span class="dot"></span>Expected Outputs</h3><ul class="clean">${s.outputs.map(o=>`<li>${o}</li>`).join('')}</ul></div>
+
+    <div class="card">
+      <h3><span class="dot"></span>Notes & Bookmarks</h3>
+      <textarea class="notes" placeholder="Jot ideas, links, or reminders for this stage…" onblur="saveNote('${s.id}', this.value)">${LS.notes[s.id]||''}</textarea>
+    </div>
+  `;
+}
+function toggleTask(key){
+  LS.tasks[key] = !LS.tasks[key];
+  persist();
+  renderOverview();
+  renderHero();
+  renderNav();
+}
+function saveNote(id, val){ LS.notes[id]=val; persist(); }
+function copyPrompt(btn){
+  const text = btn.parentElement.innerText.replace('Copy','').trim();
+  navigator.clipboard && navigator.clipboard.writeText(text);
+  btn.innerText='Copied'; setTimeout(()=>btn.innerText='Copy',1200);
+}
+
+/* ---- Flow Diagram ---- */
+function renderDiagram(){
+  document.getElementById('view-diagram').innerHTML = `
+    <div class="card">
+      <h3><span class="dot"></span>End-to-End Workflow Map</h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-top:-4px;">Click any stage to jump straight to its playbook.</p>
+      <div class="flow">
+        ${STAGES.map((s,i)=>`
+          <div class="flow-step" onclick="selectStage('${s.id}')">
+            <div class="fn">Stage ${String(i+1).padStart(2,'0')}</div>
+            <div class="ft">${s.title}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Weekly Cadence Snapshot</h3>
+      <table>
+        <tr><th>Cadence</th><th>Stages Involved</th><th>Approx. Weekly Time</th></tr>
+        <tr><td>One-time setup</td><td>Foundation, Identity</td><td>5–9 hrs (once)</td></tr>
+        <tr><td>Weekly production</td><td>Planning, Creation, Editing, Copy</td><td>8–14 hrs/week</td></tr>
+        <tr><td>Daily/ongoing</td><td>Publishing, Engagement</td><td>4–6 hrs/week</td></tr>
+        <tr><td>Recurring review</td><td>Analytics, Growth</td><td>3–6 hrs/week</td></tr>
+      </table>
+    </div>`;
+}
+
+/* ---- Decision Tree ---- */
+const TREE = {
+  q: "What's your goal for today's post?",
+  opts:[
+    { label:'Grow reach / go viral', result:'Prioritize a Reel with a strong first-1.5-second hook and trending audio. Post in your top-performing time window. Skip heavy hashtag reliance — hook and watch-time matter most.'},
+    { label:'Drive saves / build authority', result:'Use a carousel: one clear idea per slide, a strong slide-1 promise, and a save-worthy summary or checklist on the final slide.'},
+    { label:'Deepen community connection', result:'Use a Story series (poll/Q&A/behind-the-scenes) or a personal single-image post with a vulnerable, conversational caption inviting comments.'},
+    { label:'Drive traffic off-platform', result:'Use a static post or carousel with a clear, singular CTA to your link-in-bio, and mention the destination explicitly in the caption\'s first two lines.'}
+  ]
+};
+function renderDecision(){
+  document.getElementById('view-decision').innerHTML = `
+    <div class="card">
+      <h3><span class="dot"></span>Content Decision Tree</h3>
+      <div class="tree-node">
+        <div class="tree-q">${TREE.q}</div>
+        <div class="tree-opts">
+          ${TREE.opts.map((o,i)=>`<button class="tree-opt" onclick="revealResult(${i})">${o.label}</button>`).join('')}
+        </div>
+        <div id="treeResult"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Format Quick-Reference</h3>
+      <table>
+        <tr><th>Format</th><th>Best For</th><th>Typical Length</th></tr>
+        <tr><td>Reel</td><td>Reach, discovery, new followers</td><td>15–30 sec</td></tr>
+        <tr><td>Carousel</td><td>Saves, authority, education</td><td>6–10 slides</td></tr>
+        <tr><td>Single image</td><td>Personal/behind-the-scenes, quick moments</td><td>1 image + caption</td></tr>
+        <tr><td>Stories</td><td>Daily connection, polls, real-time updates</td><td>3–8 frames/day</td></tr>
+      </table>
+    </div>`;
+}
+function revealResult(i){
+  document.getElementById('treeResult').innerHTML = `<div class="tree-result"><strong>Recommendation:</strong> ${TREE.opts[i].result}</div>`;
+}
+
+/* ---- Tool Comparison ---- */
+function renderCompare(){
+  document.getElementById('view-compare').innerHTML = COMPARE_SETS.map(set=>`
+    <div class="card">
+      <h3><span class="dot"></span>${set.title}</h3>
+      <table>
+        <tr><th>Tool</th><th>Best For</th><th>Pricing</th><th>Strength</th><th>Weakness</th></tr>
+        ${set.rows.map(r=>`<tr><td><strong>${r.name}</strong></td><td>${r.best}</td><td>${r.price}</td><td>${r.strength}</td><td>${r.weakness}</td></tr>`).join('')}
+      </table>
+    </div>`).join('');
+}
+
+/* ---- Summary ---- */
+function renderSummary(){
+  document.getElementById('view-summary').innerHTML = `
+    <div class="card">
+      <h3><span class="dot"></span>Workflow Summary</h3>
+      <p style="font-size:13.5px; line-height:1.7; color:var(--ink-soft);">
+        This workflow takes an Instagram personal brand from an undefined idea to a systemized growth engine across
+        ${STAGES.length} stages: strategy and identity are built once, content production runs weekly, and
+        publishing, engagement, and analytics operate on a continuous loop that feeds back into the content plan.
+        The path ends in monetization and light systemization so growth doesn't depend on constant manual effort.
+      </p>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Recommended AI Stack</h3>
+      <div class="stack-grid">
+        <div class="stack-item"><div class="role">Strategy & Research</div><div class="tool">Claude + Perplexity</div><div class="desc">Positioning, competitor research, analytics synthesis</div></div>
+        <div class="stack-item"><div class="role">Writing & Captions</div><div class="tool">Claude</div><div class="desc">Voice-matched captions, scripts, pitch decks</div></div>
+        <div class="stack-item"><div class="role">Design</div><div class="tool">Canva</div><div class="desc">Carousels, Highlight covers, brand kit</div></div>
+        <div class="stack-item"><div class="role">Video Editing</div><div class="tool">CapCut</div><div class="desc">Reels editing, auto-captions, templates</div></div>
+        <div class="stack-item"><div class="role">Scheduling & Analytics</div><div class="tool">Metricool</div><div class="desc">Best-time scheduling, performance tracking</div></div>
+        <div class="stack-item"><div class="role">Community & DMs</div><div class="tool">ManyChat</div><div class="desc">Automated-but-personal DM flows</div></div>
+        <div class="stack-item"><div class="role">Voiceover</div><div class="tool">ElevenLabs</div><div class="desc">Voiceover for faceless/B-roll content</div></div>
+        <div class="stack-item"><div class="role">Email / Owned Audience</div><div class="tool">ConvertKit</div><div class="desc">Building reach outside the algorithm</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Future Automation Opportunities</h3>
+      <ul class="clean">
+        <li>Auto-generate a first-draft caption whenever a new Reel script is finalized, using a saved voice-matching prompt</li>
+        <li>Automated weekly performance digest pulled from analytics tools and summarized by AI every Monday</li>
+        <li>DM auto-triage: route common inquiry types to templated replies, escalate the rest for a personal response</li>
+        <li>Auto-repurpose every Reel into a carousel and Story sequence draft on publish</li>
+        <li>Quarterly automated competitor scan to flag positioning drift or new white space</li>
+      </ul>
+    </div>`;
+}
+
+/* ---- Resources ---- */
+function renderResources(){
+  document.getElementById('view-resources').innerHTML = `
+    <div class="card">
+      <h3><span class="dot"></span>Learning Resources</h3>
+      <div class="res-link"><span>Meta Blueprint — Instagram Marketing courses</span><span class="tag">Official</span></div>
+      <div class="res-link"><span>Later's Instagram Marketing Strategy guide</span><span class="tag">Guide</span></div>
+      <div class="res-link"><span>Hootsuite Academy — Social Media Marketing</span><span class="tag">Course</span></div>
+      <div class="res-link"><span>Anthropic prompt engineering documentation (for tightening AI prompts)</span><span class="tag">Docs</span></div>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Communities</h3>
+      <div class="res-link"><span>r/InstagramMarketing</span><span class="tag">Reddit</span></div>
+      <div class="res-link"><span>r/CreatorsAdvice</span><span class="tag">Reddit</span></div>
+      <div class="res-link"><span>Creator Economy Slack/Discord communities</span><span class="tag">Community</span></div>
+      <div class="res-link"><span>Local creator meetups / niche-specific Facebook Groups</span><span class="tag">Local</span></div>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Search Keywords</h3>
+      <span class="kw-pill">instagram content pillars</span><span class="kw-pill">reels hook formulas</span>
+      <span class="kw-pill">personal brand positioning statement</span><span class="kw-pill">instagram best posting times 2026</span>
+      <span class="kw-pill">carousel design templates</span><span class="kw-pill">instagram bio formula</span>
+      <span class="kw-pill">creator media kit template</span><span class="kw-pill">instagram engagement rate benchmark</span>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Additional AI Prompts</h3>
+      <div class="prompt-box"><button class="copy-btn" onclick="copyPrompt(this)">Copy</button>Audit my last 12 Instagram captions [paste] for voice consistency. Flag any that sound generic or off-brand and suggest a rewrite matching the rest.</div>
+      <div class="prompt-box"><button class="copy-btn" onclick="copyPrompt(this)">Copy</button>I have 90 days until [goal, e.g. 10k followers]. Based on my current stats [paste] and posting cadence, build a realistic week-by-week milestone plan.</div>
+      <div class="prompt-box"><button class="copy-btn" onclick="copyPrompt(this)">Copy</button>Review this Reel hook [paste] and give me 5 alternative openings using different hook types (question, bold claim, pattern interrupt, relatable pain point, curiosity gap).</div>
+    </div>`;
+}
+
+/* ---- Bookmarks ---- */
+function renderBookmarks(){
+  const items = STAGES.filter(s=>LS.bookmarks.includes(s.id));
+  document.getElementById('view-bookmarks').innerHTML = `
+    <div class="card">
+      <h3><span class="dot"></span>Bookmarked Stages</h3>
+      ${items.length ? items.map(s=>`
+        <div class="res-link">
+          <span>${s.title}</span>
+          <span style="display:flex; gap:10px; align-items:center;">
+            <span class="tag">${stageProgress(s)}% done</span>
+            <button class="tab-btn" style="padding:4px 10px;" onclick="selectStage('${s.id}')">Open →</button>
+          </span>
+        </div>`).join('')
+        : `<p style="font-size:13px; color:var(--ink-soft);">No bookmarks yet — star any stage from its playbook to save it here.</p>`}
+    </div>`;
+}
+
+/* ============ INIT ============ */
+function init(){
+  renderNav();
+  renderHero();
+  renderOverview();
+  renderDiagram();
+  renderDecision();
+  renderCompare();
+  if(window.innerWidth<=900) document.getElementById('menuBtn').style.display='flex';
+}
+init();
+</script>
+</body>
+</html>
