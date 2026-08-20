@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PR #1 — Rebuild LinkedIn Profile: sima-rani</title>
+<style>
+  :root{
+    --bg: #0d1117;
+    --bg-raised: #161b22;
+    --bg-inset: #010409;
+    --border: #30363d;
+    --text: #c9d1d9;
+    --text-muted: #8b949e;
+    --text-dim: #6e7681;
+    --green: #3fb950;
+    --green-bg: rgba(63,185,80,0.12);
+    --green-line-bg: rgba(46,160,67,0.15);
+    --red: #f85149;
+    --red-bg: rgba(248,81,73,0.12);
+    --red-line-bg: rgba(248,81,73,0.15);
+    --purple: #a371f7;
+    --blue: #58a6ff;
+    --yellow: #d29922;
+    --mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    --sans: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:var(--sans); font-size:14px; line-height:1.6;
+    padding:0 0 60px 0;
+  }
+  a{color:var(--blue); text-decoration:none;}
+
+  /* Header bar */
+  .topbar{
+    background:var(--bg-raised); border-bottom:1px solid var(--border);
+    padding:14px 24px; display:flex; align-items:center; gap:10px;
+  }
+  .topbar .repo{font-family:var(--mono); font-size:15px; color:var(--text-muted);}
+  .topbar .repo b{color:var(--text); font-weight:600;}
+  .topbar .badge{
+    margin-left:auto; font-family:var(--mono); font-size:12px;
+    color:var(--yellow); border:1px solid var(--yellow); border-radius:20px;
+    padding:2px 10px;
+  }
+
+  .wrap{max-width:920px; margin:0 auto; padding:0 24px;}
+
+  /* PR header */
+  .pr-header{padding:28px 0 16px 0; border-bottom:1px solid var(--border);}
+  .pr-title{font-size:24px; font-weight:600; color:#e6edf3; margin:0 0 8px 0;}
+  .pr-title .num{color:var(--text-dim); font-weight:400;}
+  .pr-meta{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+  .status-pill{
+    display:inline-flex; align-items:center; gap:6px;
+    background:var(--green); color:#0d1117; font-weight:600;
+    padding:4px 12px; border-radius:20px; font-size:13px;
+  }
+  .pr-meta .who{color:var(--text-muted); font-size:13px;}
+  .pr-meta .who b{color:var(--text);}
+
+  /* Tabs */
+  .tabs{
+    display:flex; gap:4px; border-bottom:1px solid var(--border);
+    margin-top:20px; overflow-x:auto;
+  }
+  .tab{
+    font-family:var(--mono); font-size:13px; color:var(--text-muted);
+    background:none; border:none; padding:10px 16px; cursor:pointer;
+    border-bottom:2px solid transparent; white-space:nowrap;
+  }
+  .tab:hover{color:var(--text);}
+  .tab.active{color:#e6edf3; border-bottom-color:var(--purple); font-weight:600;}
+  .tab .count{
+    background:var(--bg-inset); border:1px solid var(--border); border-radius:20px;
+    padding:0 7px; font-size:11px; margin-left:6px; color:var(--text-dim);
+  }
+
+  .panel{display:none; padding:24px 0;}
+  .panel.active{display:block; animation:fadeIn .25s ease;}
+  @keyframes fadeIn{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);}}
+
+  /* Overview */
+  .callout{
+    background:var(--bg-raised); border:1px solid var(--border); border-radius:8px;
+    padding:18px 20px; margin-bottom:18px;
+  }
+  .callout h3{margin:0 0 8px 0; font-size:15px; color:#e6edf3;}
+  .callout p{margin:0; color:var(--text-muted);}
+  .score-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin:18px 0;}
+  .score-card{
+    background:var(--bg-raised); border:1px solid var(--border); border-radius:8px;
+    padding:14px; text-align:center;
+  }
+  .score-card .label{font-size:11px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.04em;}
+  .score-card .val{font-family:var(--mono); font-size:22px; margin-top:6px;}
+  .score-card .val .arrow{color:var(--text-dim); font-size:14px; margin:0 4px;}
+  .score-card .before{color:var(--red);}
+  .score-card .after{color:var(--green);}
+
+  .overall-bar-wrap{margin-top:22px;}
+  .overall-label{display:flex; justify-content:space-between; font-family:var(--mono); font-size:13px; color:var(--text-muted); margin-bottom:6px;}
+  .overall-track{height:10px; background:var(--bg-inset); border-radius:6px; overflow:hidden; border:1px solid var(--border); position:relative;}
+  .overall-fill{height:100%; background:linear-gradient(90deg,var(--purple),var(--blue)); border-radius:6px; width:0%; transition:width 1.2s ease;}
+
+  .flag{
+    display:flex; gap:10px; align-items:flex-start; margin:10px 0;
+    background:var(--bg-inset); border:1px solid var(--border); border-left:3px solid var(--yellow);
+    padding:10px 14px; border-radius:6px; font-size:13px; color:var(--text-muted);
+  }
+  .flag b{color:var(--yellow);}
+
+  /* Diff blocks */
+  .file{
+    border:1px solid var(--border); border-radius:8px; margin-bottom:20px; overflow:hidden;
+  }
+  .file-head{
+    background:var(--bg-raised); padding:10px 16px; font-family:var(--mono); font-size:13px;
+    color:var(--text-muted); border-bottom:1px solid var(--border);
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .file-head .fname{color:#e6edf3;}
+  .file-head .stat{font-size:12px;}
+  .file-head .stat .plus{color:var(--green);}
+  .file-head .stat .minus{color:var(--red);}
+  .diff-body{background:var(--bg-inset);}
+  .diff-line{
+    display:flex; font-family:var(--mono); font-size:12.5px; white-space:pre-wrap;
+    padding:4px 16px; border-left:3px solid transparent;
+  }
+  .diff-line.remove{background:var(--red-line-bg); border-left-color:var(--red); color:#ffdcd7;}
+  .diff-line.add{background:var(--green-line-bg); border-left-color:var(--green); color:#c9f7cd;}
+  .diff-line.context{color:var(--text-dim); font-style:italic;}
+  .diff-line .sym{width:18px; flex-shrink:0; opacity:.7;}
+  .why-box{
+    padding:12px 16px 16px 16px; font-size:13px; color:var(--text-muted); border-top:1px dashed var(--border);
+  }
+  .why-box b{color:var(--blue);}
+  mark.ph{background:rgba(210,153,34,0.18); color:var(--yellow); padding:0 3px; border-radius:3px; font-style:normal;}
+
+  .option-tag{
+    display:inline-block; font-family:var(--mono); font-size:11px; color:var(--purple);
+    border:1px solid var(--purple); border-radius:4px; padding:1px 6px; margin-right:8px;
+  }
+
+  ul.clean{margin:8px 0; padding-left:20px;}
+  ul.clean li{margin:4px 0;}
+
+  .skill-cols{display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:14px;}
+  @media(max-width:600px){.skill-cols{grid-template-columns:1fr;}}
+  .skill-col h4{font-size:13px; margin:0 0 8px 0; color:var(--text-muted); font-family:var(--mono);}
+  .skill-chip{
+    display:inline-block; margin:3px 4px 3px 0; padding:3px 10px; border-radius:14px;
+    font-size:12px; font-family:var(--mono);
+  }
+  .skill-chip.add{background:var(--green-bg); color:var(--green); border:1px solid rgba(63,185,80,.3);}
+  .skill-chip.pin{background:rgba(163,113,247,0.15); color:var(--purple); border:1px solid rgba(163,113,247,.4);}
+
+  /* Checks / 7-day plan */
+  .check-item{
+    border:1px solid var(--border); border-radius:8px; margin-bottom:10px; overflow:hidden;
+  }
+  .check-summary{
+    padding:12px 16px; cursor:pointer; display:flex; align-items:center; gap:10px;
+    background:var(--bg-raised); user-select:none;
+  }
+  .check-summary .dot{
+    width:10px; height:10px; border-radius:50%; background:var(--text-dim); flex-shrink:0;
+  }
+  .check-item.done .dot{background:var(--green);}
+  .check-summary .day{font-family:var(--mono); color:var(--purple); font-weight:600; font-size:13px;}
+  .check-summary .title{font-size:13.5px; color:#e6edf3; flex:1;}
+  .check-summary .chev{color:var(--text-dim); transition:transform .2s;}
+  .check-item.open .chev{transform:rotate(90deg);}
+  .check-detail{display:none; padding:14px 16px 16px 40px; font-size:13px; color:var(--text-muted); border-top:1px solid var(--border);}
+  .check-item.open .check-detail{display:block;}
+  .post-draft{
+    background:var(--bg-inset); border:1px solid var(--border); border-radius:6px;
+    padding:12px 14px; margin-top:10px; font-size:13px; white-space:pre-wrap; color:var(--text);
+  }
+  .char-count{font-family:var(--mono); font-size:11px; color:var(--text-dim); margin-top:6px;}
+
+  /* Merge / summary */
+  .merge-box{
+    background:var(--bg-raised); border:1px solid var(--border); border-radius:10px; padding:24px;
+  }
+  .summary-card{
+    background:var(--bg-inset); border:1px solid var(--border); border-radius:10px; padding:20px;
+    font-family:var(--mono); font-size:13px; margin-top:16px; position:relative;
+  }
+  .summary-card .sc-before, .summary-card .sc-after{display:flex; justify-content:space-between; margin:4px 0;}
+  .summary-card .sc-before .v{color:var(--red);}
+  .summary-card .sc-after .v{color:var(--green);}
+  .summary-card ol{padding-left:20px; margin:8px 0;}
+  .copy-btn{
+    margin-top:14px; background:var(--purple); color:#fff; border:none; border-radius:6px;
+    padding:8px 16px; font-family:var(--sans); font-size:13px; cursor:pointer; font-weight:600;
+  }
+  .copy-btn:hover{opacity:.9;}
+  .copy-btn.copied{background:var(--green);}
+
+  h2.section-h{font-size:16px; color:#e6edf3; margin:28px 0 10px 0; display:flex; align-items:center; gap:8px;}
+  h2.section-h:first-child{margin-top:0;}
+  h2.section-h .icon{color:var(--purple);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="repo">🔀 <b>sima-rani</b> / linkedin-profile</span>
+  <span class="badge">DRAFT · not yet published</span>
+</div>
+
+<div class="wrap">
+
+  <div class="pr-header">
+    <h1 class="pr-title">Rebuild LinkedIn profile for freelance client attraction <span class="num">#1</span></h1>
+    <div class="pr-meta">
+      <span class="status-pill">● Ready to merge</span>
+      <span class="who">Frontend Developer <b>pivoting</b> from employed → freelance clients · target reviewers: <b>small business & startup clients</b></span>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="overview">Overview</button>
+    <button class="tab" data-tab="diff">Files changed <span class="count">5</span></button>
+    <button class="tab" data-tab="checks">Checks <span class="count">7</span></button>
+    <button class="tab" data-tab="merge">Merge summary</button>
+  </div>
+
+  <!-- OVERVIEW -->
+  <div class="panel active" id="panel-overview">
+    <div class="callout">
+      <h3>Starting point</h3>
+      <p>You don't have a LinkedIn profile live yet — so there's nothing to roast, but there's also nothing working for you right now. Every day without one, you're invisible to the exact clients who'd hire a frontend developer who's fast and clear. That's the real cost. Here's the honest scorecard on the ground truth you gave me: two named skills (React, JavaScript), one unnamed client project, and no positioning statement anywhere. Below is what that becomes once it's built out properly — and what's still missing that only you can add.</p>
+    </div>
+
+    <div class="score-grid">
+      <div class="score-card"><div class="label">Headline</div><div class="val"><span class="before">0</span><span class="arrow">→</span><span class="after">7</span><span style="color:var(--text-dim)">/10</span></div></div>
+      <div class="score-card"><div class="label">About (Hook)</div><div class="val"><span class="before">0</span><span class="arrow">→</span><span class="after">6</span><span style="color:var(--text-dim)">/10</span></div></div>
+      <div class="score-card"><div class="label">About (Full)</div><div class="val"><span class="before">0</span><span class="arrow">→</span><span class="after">6</span><span style="color:var(--text-dim)">/10</span></div></div>
+      <div class="score-card"><div class="label">Experience</div><div class="val"><span class="before">0</span><span class="arrow">→</span><span class="after">5</span><span style="color:var(--text-dim)">/10</span></div></div>
+      <div class="score-card"><div class="label">Skills/Keywords</div><div class="val"><span class="before">0</span><span class="arrow">→</span><span class="after">6</span><span style="color:var(--text-dim)">/10</span></div></div>
+    </div>
+
+    <div class="overall-bar-wrap">
+      <div class="overall-label"><span>OVERALL PROFILE STRENGTH</span><span><span style="color:var(--red)">0</span> → <span style="color:var(--green)" id="overall-num">0</span>/100</span></div>
+      <div class="overall-track"><div class="overall-fill" id="overall-fill"></div></div>
+    </div>
+
+    <div class="flag"><b>Why it's capped at ~60, not 90+:</b> Your inputs only give me two skills and an undescribed "client project." I built a strong structural skeleton, but I refused to invent numbers, company names, or project details — that would make your profile lie to real clients who message you. The gap between 60 and 90 is entirely closeable by <b>you</b>, in about 20 minutes, by filling in the <mark class="ph">highlighted placeholders</mark> in the Diff tab.</div>
+
+    <h2 class="section-h">What's actually costing you right now</h2>
+    <ul class="clean">
+      <li><b>No headline</b> = you don't show up when a client searches "frontend developer" or "React developer" on LinkedIn. Search is keyword-matched — silence is invisible.</li>
+      <li><b>No About section</b> = anyone who does find you has zero reason to trust you're for hire, what you actually do, or how to reach you.</li>
+      <li><b>Two skills only</b> = LinkedIn's algorithm and recruiters/clients filtering by skill won't surface you for anything beyond the exact two words "React" and "JavaScript."</li>
+      <li><b>No proof</b> = "I build fast, clear websites" is a claim anyone can make. Right now you have zero evidence attached to it, even though you've done a real client project.</li>
+    </ul>
+  </div>
+
+  <!-- DIFF / FILES CHANGED -->
+  <div class="panel" id="panel-diff">
+
+    <h2 class="section-h">📝 Headline — 3 options</h2>
+    <div class="file">
+      <div class="file-head"><span class="fname">profile/headline.txt</span><span class="stat"><span class="plus">+3 options</span></span></div>
+      <div class="diff-body">
+        <div class="diff-line remove"><span class="sym">−</span> (empty — no headline set)</div>
+        <div class="diff-line add"><span class="sym">+</span> <span class="option-tag">SEARCH</span>Frontend Developer | React &amp; JavaScript | Building Fast, Clean Websites for Clients</div>
+        <div class="diff-line add"><span class="sym">+</span> <span class="option-tag">VALUE</span>I Build Websites That Load Fast and Actually Make Sense — For Small Business &amp; Startup Clients</div>
+        <div class="diff-line add"><span class="sym">+</span> <span class="option-tag">AUTHORITY</span>Frontend Developer → Freelance Builder | Speed + Clarity Over Complexity</div>
+      </div>
+      <div class="why-box">
+        <b>When to use which:</b> Use <span style="color:var(--purple)">SEARCH</span> while you're still building your client base — it's keyword-dense so you surface in LinkedIn search for "frontend developer" and "React developer." Switch to <span style="color:var(--purple)">VALUE</span> once you have 2-3 client testimonials, because it sells an outcome instead of a title. Save <span style="color:var(--purple)">AUTHORITY</span> for after you start posting regularly — it signals a positioning, not just a service, which only lands once you have content backing it up.
+      </div>
+    </div>
+
+    <h2 class="section-h">📄 About section</h2>
+    <div class="file">
+      <div class="file-head"><span class="fname">profile/about.txt</span><span class="stat"><span class="plus">+8 lines</span></span></div>
+      <div class="diff-body">
+        <div class="diff-line remove"><span class="sym">−</span> (empty — no About section)</div>
+        <div class="diff-line add"><span class="sym">+</span> Most website builds take too long and leave everyone confused about what's actually happening. Mine don't.</div>
+        <div class="diff-line add"><span class="sym">+</span> </div>
+        <div class="diff-line add"><span class="sym">+</span> I'm Sima — a frontend developer working in React and JavaScript, currently moving from full-time work into freelance client projects. I care about two things above everything else: shipping fast, and explaining things clearly, to clients, to teammates, and to whoever reads my code six months from now.</div>
+        <div class="diff-line add"><span class="sym">+</span> </div>
+        <div class="diff-line add"><span class="sym">+</span> Recently I delivered <mark class="ph">[describe the client project: what kind of site, how many pages/features, what the client needed]</mark>. If you've worked with developers who overcomplicate things or disappear for weeks at a time, that's not how I operate — you'll know what's happening at every step.</div>
+        <div class="diff-line add"><span class="sym">+</span> </div>
+        <div class="diff-line add"><span class="sym">+</span> Have a project in mind? Message me — I reply fast, and I'll tell you honestly if I'm the right fit for it.</div>
+      </div>
+      <div class="why-box">
+        <b>Why this structure:</b> The first line is the only thing visible before "see more" — it has to earn the click, not describe your job title. The middle paragraph does the actual positioning work in plain language, not corporate-speak ("passionate self-starter" tells a client nothing). The proof line is the weakest part right now because you haven't told me what the client project actually involved — <b>fill in that bracket and this section jumps from a 6 to a 8-9</b>. The CTA is direct because clients scanning profiles decide fast; tell them exactly what to do.<br><br>
+        <b>Keywords embedded for search:</b> frontend developer, React, JavaScript, freelance, client projects, web development, fast, clear communication.
+      </div>
+    </div>
+
+    <h2 class="section-h">💼 Experience — top entry</h2>
+    <div class="file">
+      <div class="file-head"><span class="fname">profile/experience.txt</span><span class="stat"><span class="plus">+3</span> <span class="minus">−1</span></span></div>
+      <div class="diff-body">
+        <div class="diff-line context">  Title: Frontend Developer @ <mark class="ph">[Company Name]</mark></div>
+        <div class="diff-line remove"><span class="sym">−</span> Responsible for developing frontend features using React and JavaScript.</div>
+        <div class="diff-line add"><span class="sym">+</span> Built and shipped a client-facing website using React and JavaScript — <mark class="ph">[add: page count, key feature, or turnaround time]</mark> — with direct client communication from kickoff to launch.</div>
+        <div class="diff-line add"><span class="sym">+</span> Translated client requirements into working UI without back-and-forth confusion, prioritizing clear scope over scope creep.</div>
+        <div class="diff-line add"><span class="sym">+</span> <mark class="ph">[Add a second bullet once you have it: a bug fixed, a load-time improvement, a feature you owned end-to-end — even an estimate beats nothing]</mark></div>
+      </div>
+      <div class="why-box">
+        <b>Why:</b> "Responsible for" is a job-description phrase — it tells a client what you were <i>supposed</i> to do, not what you actually did. Leading with "Built and shipped" is an action + an outcome. I did not invent a number or company name for you — bracketed placeholders are exactly where you should drop real specifics before publishing. Even a rough estimate ("a 5-page site," "launched in 3 weeks") outperforms a vague claim.
+      </div>
+    </div>
+
+    <h2 class="section-h">🏷️ Skills</h2>
+    <div class="file">
+      <div class="file-head"><span class="fname">profile/skills.txt</span><span class="stat"><span class="plus">+10</span></span></div>
+      <div style="padding:16px;">
+        <div class="skill-cols">
+          <div class="skill-col">
+            <h4>ADD (priority order)</h4>
+            <span class="skill-chip add">1. HTML5</span>
+            <span class="skill-chip add">2. CSS3</span>
+            <span class="skill-chip add">3. Responsive Web Design</span>
+            <span class="skill-chip add">4. Git &amp; GitHub</span>
+            <span class="skill-chip add">5. REST APIs</span>
+            <span class="skill-chip add">6. Cross-Browser Compatibility</span>
+            <span class="skill-chip add">7. UI/UX Collaboration</span>
+            <span class="skill-chip add">8. Figma to Code</span>
+            <span class="skill-chip add">9. Web Performance Optimization</span>
+            <span class="skill-chip add">10. Client Communication</span>
+          </div>
+          <div class="skill-col">
+            <h4>PIN TO TOP 3</h4>
+            <span class="skill-chip pin">★ React</span>
+            <span class="skill-chip pin">★ JavaScript</span>
+            <span class="skill-chip pin">★ Responsive Web Design</span>
+          </div>
+        </div>
+      </div>
+      <div class="why-box">
+        Nothing to remove yet — you only listed two skills, so there's no dilution risk. The additions are the reasonable technical neighbors of React/JavaScript that clients actually search for (HTML5, CSS3, Git are assumed-competent basics that still need to be listed for search, not skipped as "obvious"). <b>Client Communication</b> made priority 10 deliberately — for freelance clients, "will this person keep me updated" matters as much as raw code skill.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CHECKS / 7 DAY PLAN -->
+  <div class="panel" id="panel-checks">
+    <div class="callout">
+      <h3>7-day activation plan</h3>
+      <p>Click each day to expand. These are actions, not just profile edits — a profile with zero activity still gets zero views.</p>
+    </div>
+
+    <div class="check-item" data-day="1">
+      <div class="check-summary" onclick="toggleCheck(this)"><span class="dot"></span><span class="day">Day 1</span><span class="title">Make all profile changes</span><span class="chev">▸</span></div>
+      <div class="check-detail">
+        <ul class="clean">
+          <li>Set headline (Option 1: Search)</li>
+          <li>Paste in the rewritten About section — fill in the client-project bracket first</li>
+          <li>Add Experience entry with company name and both bullets</li>
+          <li>Add all 10 recommended skills, pin the top 3</li>
+          <li>Add a profile photo (clear face, plain background) — no substitute for this</li>
+          <li>Turn on "Providing services" in your profile if targeting freelance clients directly</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="check-item" data-day="2">
+      <div class="check-summary" onclick="toggleCheck(this)"><span class="dot"></span><span class="day">Day 2</span><span class="title">Publish Post #1 — "I just rebuilt my LinkedIn"</span><span class="chev">▸</span></div>
+      <div class="check-detail">
+        <div class="post-draft">I just rebuilt my entire LinkedIn profile — and realized how invisible I'd been.
+
+For a while I had no headline, no About section, nothing that said what I actually do. If a client had searched "frontend developer" right now, I wouldn't have shown up at all.
+
+Here's what I'm about, plainly: I'm a frontend developer (React, JavaScript) moving into freelance client work. I care about two things — shipping fast, and explaining things clearly, so nobody's left guessing what's happening with their project.
+
+If you're a founder or small business owner who's been burned by a dev who went dark for weeks — that's exactly the problem I'm trying to fix.
+
+Open to hearing about your project. Drop a comment or send a DM.</div>
+        <div class="char-count">≈ 680 characters — well under the 1,300 limit</div>
+      </div>
+    </div>
+
+    <div class="check-item" data-day="3">
+      <div class="check-summary" onclick="toggleCheck(this)"><span class="dot"></span><span class="day">Day 3</span><span class="title">Send 10 strategic connection requests</span><span class="chev">▸</span></div>
+      <div class="check-detail">
+        <b>Who to target:</b>
+        <ul class="clean">
+          <li>Small business owners / solo founders (search "founder" + your city/niche — they often need a site and don't have a dev on staff)</li>
+          <li>Startup founders in early stage (pre-seed/seed — they need fast, cheap frontend help before hiring in-house)</li>
+          <li>Agency owners in web/design (they subcontract frontend work regularly)</li>
+          <li>Other frontend developers one step ahead of you (referral and collaboration source, not competition)</li>
+        </ul>
+        <div class="post-draft">Hi [Name] — I build fast, clean frontend experiences (React/JS) and I'm expanding into client work. Came across your profile and liked what you're building. Open to connecting — happy to help if a frontend need ever comes up.</div>
+        <div class="char-count">≈ 270 characters — under the 300 limit</div>
+      </div>
+    </div>
+
+    <div class="check-item" data-day="4">
+      <div class="check-summary" onclick="toggleCheck(this)"><span class="dot"></span><span class="day">Day 4</span><span class="title">Comment on 5 posts in your target space</span><span class="chev">▸</span></div>
+      <div class="check-detail">
+        <b>The Value Comment formula:</b> Agree + Add Insight + Ask a Question.
+        <ul class="clean">
+          <li><b>Agree</b> — briefly say what part of their point lands for you (one sentence, specific, not "Great post!")</li>
+          <li><b>Add Insight</b> — bring something from your own experience/perspective they didn't say</li>
+          <li><b>Ask a Question</b> — invite a reply, which is what actually gets you seen by their audience</li>
+        </ul>
+        <p>Target posts from small-agency owners, freelance devs, and startup founders talking about websites, hiring, or freelancing — that's where your future clients are reading.</p>
+      </div>
+    </div>
+
+    <div class="check-item" data-day="5">
+      <div class="check-summary" onclick="toggleCheck(this)"><span class="dot"></span><span class="day">Day 5</span><span class="title">Publish Post #2 — lessons-learned / hot take</span><span class="chev">▸</span></div>
+      <div class="check-detail">
+        <div class="post-draft">Unpopular opinion: most small business websites don't need to be "impressive." They need to load in under 2 seconds and tell a visitor exactly what to do next.
+
+I've seen too many sites where the developer optimized for looking clever instead of being clear — animations that slow the page down, navigation that needs a tutorial, copy buried under a hero video.
+
+Speed and clarity aren't the boring choice. They're the choice that actually gets a visitor to become a customer.
+
+What's the most "impressive but useless" website feature you've seen?</div>
+        <div class="char-count">≈ 660 characters</div>
+      </div>
+    </div>
+
+    <div class="check-item" data-day="6">
+      <div class="check-summary" onclick="toggleCheck(this)"><span class="dot"></span><span class="day">Day 6</span><span class="title">Engage with every comment + 5 more connections</span><span class="chev">▸</span></div>
+      <div class="check-detail">
+        <p>Reply to every single comment on both posts within a few hours — this is what LinkedIn's algorithm rewards most, and it's also literally client-facing behavior you're demonstrating in public. Send 5 more targeted connection requests using the Day 3 approach.</p>
+      </div>
+    </div>
+
+    <div class="check-item" data-day="7">
+      <div class="check-summary" onclick="toggleCheck(this)"><span class="dot"></span><span class="day">Day 7</span><span class="title">Review profile views &amp; connection acceptance rate</span><span class="chev">▸</span></div>
+      <div class="check-detail">
+        <p><b>Profile views up</b> = your headline/keywords are getting you found in search; keep optimizing keywords over time.<br>
+        <b>Low connection-accept rate (under ~30%)</b> = your request message or profile photo isn't building enough trust — revisit both.<br>
+        <b>Posts got views but no comments</b> = your hook or your question at the end isn't inviting a reply — the last line of a post should always be answerable in one sentence.<br>
+        <b>Nothing moved at all</b> = normal for week one. Consistency over 3-4 weeks is what actually compounds on LinkedIn, not one good week.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MERGE / SUMMARY -->
+  <div class="panel" id="panel-merge">
+    <div class="merge-box">
+      <h3 style="margin-top:0; color:#e6edf3;">✅ Ready to merge</h3>
+      <p style="color:var(--text-muted);">This PR builds your LinkedIn presence from zero. Before merging (publishing), fill in the three <mark class="ph">bracketed placeholders</mark> in the Diff tab — company name, client project details, and a second experience bullet. That's the only blocker between a 6/10 profile and an 8-9/10 one.</p>
+
+      <div class="summary-card" id="summary-card">
+        <div style="color:var(--text-dim); margin-bottom:10px;">// what-i-learned-today.md</div>
+        <div>"I let AI build my LinkedIn profile from scratch today. Here's what changed:"</div>
+        <div class="sc-before"><span>Before</span><span class="v">0/100</span></div>
+        <div class="sc-after"><span>After</span><span class="v">60/100</span></div>
+        <div style="margin-top:10px;">Top 3 mistakes I was making:</div>
+        <ol>
+          <li>Had zero LinkedIn presence — completely invisible to client search</li>
+          <li>No positioning statement anywhere tying my skills to a client's problem</li>
+          <li>Only 2 listed skills — nowhere near enough for search or credibility</li>
+        </ol>
+        <div style="margin-top:10px;">The #1 thing that made the biggest difference:</div>
+        <div style="color:var(--green); margin-top:4px;">Writing an About hook that speaks to a client's pain (slow, confusing dev experiences) instead of just listing my job title.</div>
+      </div>
+      <button class="copy-btn" id="copyBtn" onclick="copySummary()">Copy summary to post on LinkedIn</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function switchTab(name){
+    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+    document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + name));
+    if(name === 'overview'){ setTimeout(animateScore, 80); }
+  }
+  document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
+
+  function toggleCheck(el){
+    const item = el.parentElement;
+    item.classList.toggle('open');
+  }
+
+  function animateScore(){
+    const fill = document.getElementById('overall-fill');
+    const num = document.getElementById('overall-num');
+    let target = 60, current = 0;
+    fill.style.width = '0%';
+    const step = () => {
+      current += 2;
+      if(current > target) current = target;
+      fill.style.width = current + '%';
+      num.textContent = current;
+      if(current < target) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+  window.addEventListener('load', () => setTimeout(animateScore, 200));
+
+  function copySummary(){
+    const text = `I let AI build my LinkedIn profile from scratch today. Here's what changed:
+
+Before: 0/100
+After: 60/100
+
+Top 3 mistakes I was making:
+1. Had zero LinkedIn presence — completely invisible to client search
+2. No positioning statement anywhere tying my skills to a client's problem
+3. Only 2 listed skills — nowhere near enough for search or credibility
+
+The #1 thing that made the biggest difference: Writing an About hook that speaks to a client's pain instead of just listing my job title.`;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById('copyBtn');
+      btn.textContent = 'Copied ✓';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copy summary to post on LinkedIn'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+</script>
+
+</body>
+</html>
