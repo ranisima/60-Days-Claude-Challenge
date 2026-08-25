@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laptop Decide — Weigh what matters, see the ranking shift</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #12161c;
+    --surface: #1a2029;
+    --surface-raised: #212836;
+    --surface-raised-2: #262e3d;
+    --line: #2c3444;
+    --line-soft: #232a37;
+    --text: #edeff2;
+    --text-muted: #8b95a6;
+    --text-dim: #5c6577;
+    --signal: #4fd1c5;
+    --signal-dim: #2f6f6a;
+    --amber: #e8a33d;
+    --amber-dim: #6b5227;
+    --rank1: #d8c27a;
+    --danger: #e2705f;
+    --radius: 10px;
+    --mono: 'IBM Plex Mono', ui-monospace, monospace;
+    --sans: 'IBM Plex Sans', -apple-system, sans-serif;
+    --cond: 'IBM Plex Sans Condensed', sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(79,209,197,0.07), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 0%, rgba(232,163,61,0.05), transparent 55%),
+      var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important; transition-duration:0.01ms !important;}
+  }
+
+  a{color:var(--signal);}
+
+  .wrap{max-width:1180px; margin:0 auto; padding:0 24px;}
+
+  /* ---------- header ---------- */
+  header.top{
+    padding:56px 24px 40px;
+    border-bottom:1px solid var(--line-soft);
+  }
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--signal);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:18px;
+  }
+  .eyebrow::before{
+    content:"";
+    width:7px; height:7px;
+    background:var(--signal);
+    border-radius:50%;
+    box-shadow:0 0 0 3px rgba(79,209,197,0.15);
+  }
+  h1{
+    font-family:var(--cond);
+    font-weight:700;
+    font-size:clamp(32px,5vw,52px);
+    line-height:1.05;
+    letter-spacing:-0.01em;
+    margin:0 0 16px;
+    max-width:16ch;
+  }
+  h1 em{
+    font-style:normal;
+    color:var(--signal);
+  }
+  .lede{
+    font-size:16px;
+    color:var(--text-muted);
+    max-width:60ch;
+    margin:0 0 8px;
+  }
+  .subjects{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:24px;
+  }
+  .chip{
+    font-family:var(--mono);
+    font-size:12.5px;
+    color:var(--text-muted);
+    border:1px solid var(--line);
+    padding:6px 12px;
+    border-radius:999px;
+    background:var(--surface);
+  }
+
+  main{max-width:1180px; margin:0 auto; padding:44px 24px 80px;}
+
+  section{margin-bottom:52px;}
+  .section-head{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:18px;
+    flex-wrap:wrap;
+  }
+  .section-title{
+    font-family:var(--cond);
+    font-weight:700;
+    font-size:22px;
+    letter-spacing:-0.01em;
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+  }
+  .section-title .idx{
+    font-family:var(--mono);
+    font-size:13px;
+    color:var(--text-dim);
+    font-weight:500;
+  }
+  .section-note{
+    font-size:13px;
+    color:var(--text-dim);
+    font-family:var(--mono);
+  }
+
+  /* ---------- layout: weights + ranking ---------- */
+  .studio{
+    display:grid;
+    grid-template-columns:340px 1fr;
+    gap:22px;
+    align-items:start;
+  }
+  @media (max-width:860px){
+    .studio{grid-template-columns:1fr;}
+  }
+
+  .panel{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:22px;
+  }
+
+  .weights-panel{position:sticky; top:20px;}
+  @media (max-width:860px){.weights-panel{position:static;}}
+
+  .weights-title{
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--text-dim);
+    margin-bottom:4px;
+  }
+  .weights-sum{
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--text-muted);
+    margin-bottom:18px;
+  }
+  .weights-sum b{color:var(--signal);}
+
+  .slider-row{margin-bottom:18px;}
+  .slider-row:last-of-type{margin-bottom:6px;}
+  .slider-label{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:8px;
+  }
+  .slider-label .name{font-size:14.5px; font-weight:600;}
+  .slider-label .val{
+    font-family:var(--mono);
+    font-size:13px;
+    color:var(--signal);
+    min-width:34px;
+    text-align:right;
+  }
+  .slider-hint{
+    font-size:11.5px;
+    color:var(--text-dim);
+    margin-top:5px;
+  }
+
+  input[type=range]{
+    -webkit-appearance:none;
+    appearance:none;
+    width:100%;
+    height:4px;
+    border-radius:2px;
+    background:var(--line);
+    outline:none;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    width:16px; height:16px;
+    border-radius:50%;
+    background:var(--signal);
+    border:3px solid var(--surface);
+    box-shadow:0 0 0 1px var(--signal);
+    cursor:pointer;
+    margin-top:0;
+  }
+  input[type=range]::-moz-range-thumb{
+    width:16px; height:16px;
+    border-radius:50%;
+    background:var(--signal);
+    border:3px solid var(--surface);
+    box-shadow:0 0 0 1px var(--signal);
+    cursor:pointer;
+  }
+  input[type=range]::-moz-range-track{background:var(--line); height:4px; border-radius:2px;}
+
+  .reset-btn{
+    width:100%;
+    margin-top:14px;
+    padding:10px 14px;
+    background:transparent;
+    border:1px solid var(--line);
+    color:var(--text-muted);
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:0.04em;
+    border-radius:6px;
+    cursor:pointer;
+    transition:border-color .15s, color .15s;
+  }
+  .reset-btn:hover{border-color:var(--signal); color:var(--signal);}
+  .reset-btn:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visible{
+    outline:2px solid var(--signal);
+    outline-offset:2px;
+  }
+
+  .presets{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    margin-top:16px;
+    padding-top:16px;
+    border-top:1px solid var(--line-soft);
+  }
+  .preset-btn{
+    font-family:var(--mono);
+    font-size:11px;
+    padding:6px 10px;
+    background:var(--surface-raised);
+    border:1px solid var(--line);
+    color:var(--text-muted);
+    border-radius:6px;
+    cursor:pointer;
+  }
+  .preset-btn:hover{color:var(--text); border-color:var(--text-dim);}
+
+  /* ---------- ranking cards ---------- */
+  .rank-list{display:flex; flex-direction:column; gap:12px;}
+
+  .rank-card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:18px 20px;
+    display:grid;
+    grid-template-columns:44px 1fr auto;
+    gap:16px;
+    align-items:center;
+    transition:border-color .2s, transform .2s;
+  }
+  .rank-card.is-first{
+    border-color:rgba(216,194,122,0.5);
+    background:linear-gradient(180deg, rgba(216,194,122,0.06), transparent 40%), var(--surface);
+  }
+  .rank-num{
+    font-family:var(--mono);
+    font-size:22px;
+    font-weight:600;
+    color:var(--text-dim);
+    text-align:center;
+  }
+  .is-first .rank-num{color:var(--rank1);}
+
+  .rank-main .name{
+    font-family:var(--cond);
+    font-weight:700;
+    font-size:18px;
+    margin-bottom:2px;
+  }
+  .rank-main .score-bar-track{
+    height:6px;
+    background:var(--line-soft);
+    border-radius:3px;
+    margin-top:10px;
+    overflow:hidden;
+  }
+  .rank-main .score-bar-fill{
+    height:100%;
+    background:linear-gradient(90deg, var(--signal-dim), var(--signal));
+    border-radius:3px;
+    transition:width .35s ease;
+  }
+  .is-first .score-bar-fill{background:linear-gradient(90deg, #8a7638, var(--rank1));}
+
+  .rank-main .sub{
+    font-family:var(--mono);
+    font-size:11.5px;
+    color:var(--text-dim);
+    margin-top:8px;
+  }
+
+  .rank-score{
+    font-family:var(--mono);
+    font-size:26px;
+    font-weight:600;
+    text-align:right;
+    color:var(--text);
+    min-width:64px;
+  }
+  .rank-score span{
+    display:block;
+    font-size:10px;
+    font-weight:500;
+    color:var(--text-dim);
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+  }
+
+  .empty-state{
+    text-align:center;
+    padding:40px 20px;
+    color:var(--text-muted);
+    font-size:14px;
+    border:1px dashed var(--line);
+    border-radius:var(--radius);
+  }
+  .empty-state .big{
+    font-family:var(--cond);
+    font-size:18px;
+    color:var(--text);
+    margin-bottom:6px;
+    font-weight:700;
+  }
+
+  .skeleton{
+    height:78px;
+    border-radius:var(--radius);
+    background:linear-gradient(90deg, var(--surface) 25%, var(--surface-raised) 37%, var(--surface) 63%);
+    background-size:400% 100%;
+    animation:shimmer 1.4s ease infinite;
+    margin-bottom:12px;
+  }
+  @keyframes shimmer{
+    0%{background-position:100% 0;}
+    100%{background-position:0 0;}
+  }
+
+  /* ---------- table ---------- */
+  .table-scroll{
+    overflow-x:auto;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    background:var(--surface);
+  }
+  table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:720px;
+    font-size:13.5px;
+  }
+  thead th{
+    text-align:left;
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--text-dim);
+    padding:14px 16px;
+    border-bottom:1px solid var(--line);
+    white-space:nowrap;
+  }
+  thead th:first-child{position:sticky; left:0; background:var(--surface); z-index:1;}
+  tbody td{
+    padding:13px 16px;
+    border-bottom:1px solid var(--line-soft);
+    vertical-align:top;
+  }
+  tbody td:first-child{
+    font-weight:600;
+    position:sticky;
+    left:0;
+    background:var(--surface);
+    white-space:nowrap;
+  }
+  tbody tr:last-child td{border-bottom:none;}
+  .cell-val{font-family:var(--mono); font-size:13.5px;}
+  .cell-cite{
+    display:inline-block;
+    font-family:var(--mono);
+    font-size:10px;
+    color:var(--signal);
+    vertical-align:super;
+    margin-left:2px;
+    cursor:default;
+  }
+  .cell-flag{
+    display:inline-block;
+    font-family:var(--mono);
+    font-size:9.5px;
+    letter-spacing:0.04em;
+    color:var(--amber);
+    border:1px solid var(--amber-dim);
+    background:rgba(232,163,61,0.08);
+    padding:1px 6px;
+    border-radius:4px;
+    margin-left:6px;
+    vertical-align:middle;
+  }
+
+  /* ---------- sources ---------- */
+  .sources-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(260px,1fr));
+    gap:10px;
+  }
+  .source-card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:14px 16px;
+  }
+  .source-card .num{
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--signal);
+    margin-bottom:6px;
+    display:block;
+  }
+  .source-card .title{
+    font-size:13.5px;
+    font-weight:600;
+    margin-bottom:4px;
+    line-height:1.35;
+  }
+  .source-card a{
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--text-dim);
+    text-decoration:none;
+    word-break:break-all;
+  }
+  .source-card a:hover{color:var(--signal);}
+  .source-card .used-for{
+    margin-top:8px;
+    font-size:11.5px;
+    color:var(--text-muted);
+  }
+
+  /* ---------- research panel ---------- */
+  details.research{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:0;
+    overflow:hidden;
+  }
+  details.research summary{
+    cursor:pointer;
+    padding:18px 22px;
+    list-style:none;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-family:var(--cond);
+    font-weight:700;
+    font-size:16px;
+  }
+  details.research summary::-webkit-details-marker{display:none;}
+  details.research summary .arrow{
+    font-family:var(--mono);
+    color:var(--signal);
+    transition:transform .2s;
+    font-size:14px;
+  }
+  details.research[open] summary .arrow{transform:rotate(90deg);}
+  .research-body{
+    padding:0 22px 24px;
+    border-top:1px solid var(--line-soft);
+  }
+  .research-body h4{
+    font-family:var(--sans);
+    font-size:13.5px;
+    color:var(--signal);
+    margin:22px 0 8px;
+    letter-spacing:0.01em;
+  }
+  .research-body p{
+    font-size:13.5px;
+    color:var(--text-muted);
+    margin:0 0 10px;
+    line-height:1.65;
+  }
+  .conflict{
+    background:var(--surface-raised);
+    border-left:2px solid var(--amber);
+    padding:10px 14px;
+    border-radius:0 6px 6px 0;
+    margin:10px 0;
+    font-size:13px;
+    color:var(--text-muted);
+  }
+  .conflict b{color:var(--text);}
+
+  footer{
+    text-align:center;
+    padding:36px 24px 50px;
+    font-family:var(--mono);
+    font-size:11.5px;
+    color:var(--text-dim);
+    border-top:1px solid var(--line-soft);
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="eyebrow">Compare &amp; Decide</div>
+    <h1>Which everyday <em>laptop</em> actually fits how you weigh the trade-offs?</h1>
+    <p class="lede">A side-by-side of four popular all-rounders — adjust what matters to you and watch the ranking recalculate live. Every figure below is sourced; anything not directly measured is labeled as an estimate.</p>
+    <div class="subjects">
+      <span class="chip">MacBook Air 13" (M3)</span>
+      <span class="chip">Dell XPS 13 (2026)</span>
+      <span class="chip">Lenovo ThinkPad X1 Carbon (Gen 12)</span>
+      <span class="chip">Asus Zenbook 14 OLED</span>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- ================= WEIGHTS + RANKING ================= -->
+  <section id="rank-section">
+    <div class="section-head">
+      <div class="section-title"><span class="idx">01</span> Set your priorities</div>
+      <div class="section-note">Ranking updates as you move the sliders</div>
+    </div>
+
+    <div class="studio">
+      <div class="panel weights-panel">
+        <div class="weights-title">Criteria weights</div>
+        <div class="weights-sum">Total priority in play: <b id="weightSum">100</b></div>
+
+        <div class="slider-row">
+          <div class="slider-label"><span class="name">Price</span><span class="val" id="val-price">20</span></div>
+          <input type="range" min="0" max="40" value="20" id="w-price">
+          <div class="slider-hint">Lower starting price scores higher</div>
+        </div>
+        <div class="slider-row">
+          <div class="slider-label"><span class="name">Battery life</span><span class="val" id="val-battery">20</span></div>
+          <input type="range" min="0" max="40" value="20" id="w-battery">
+          <div class="slider-hint">Longer tested runtime scores higher</div>
+        </div>
+        <div class="slider-row">
+          <div class="slider-label"><span class="name">Weight / portability</span><span class="val" id="val-weight">20</span></div>
+          <input type="range" min="0" max="40" value="20" id="w-weight">
+          <div class="slider-hint">Lighter chassis scores higher</div>
+        </div>
+        <div class="slider-row">
+          <div class="slider-label"><span class="name">Performance</span><span class="val" id="val-perf">20</span></div>
+          <input type="range" min="0" max="40" value="20" id="w-perf">
+          <div class="slider-hint">Higher Geekbench 6 multi-core scores higher</div>
+        </div>
+        <div class="slider-row">
+          <div class="slider-label"><span class="name">Display quality</span><span class="val" id="val-display">20</span></div>
+          <input type="range" min="0" max="40" value="20" id="w-display">
+          <div class="slider-hint">Editorial estimate — see flag below</div>
+        </div>
+
+        <button class="reset-btn" id="resetBtn">Reset to equal weights</button>
+
+        <div class="presets">
+          <button class="preset-btn" data-preset="value">I want value</button>
+          <button class="preset-btn" data-preset="travel">I travel a lot</button>
+          <button class="preset-btn" data-preset="power">I need power</button>
+        </div>
+      </div>
+
+      <div>
+        <div id="skeletonWrap"></div>
+        <div class="rank-list" id="rankList" style="display:none;"></div>
+        <div class="empty-state" id="emptyState" style="display:none;">
+          <div class="big">Nothing to rank yet</div>
+          Set at least one priority above zero to see a ranking. We've kept your other settings — just nudge a slider up.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TABLE ================= -->
+  <section id="table-section">
+    <div class="section-head">
+      <div class="section-title"><span class="idx">02</span> Full spec comparison</div>
+      <div class="section-note">Superscript numbers = source, in the panel below</div>
+    </div>
+    <div class="table-scroll">
+      <table id="specTable">
+        <thead>
+          <tr>
+            <th>Criterion</th>
+            <th>MacBook Air 13" M3</th>
+            <th>Dell XPS 13 (2026)</th>
+            <th>ThinkPad X1 Carbon Gen 12</th>
+            <th>Zenbook 14 OLED</th>
+          </tr>
+        </thead>
+        <tbody id="specTableBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ================= SOURCES ================= -->
+  <section id="sources-section">
+    <div class="section-head">
+      <div class="section-title"><span class="idx">03</span> Sources panel</div>
+      <div class="section-note" id="sourceCount"></div>
+    </div>
+    <div class="sources-grid" id="sourcesGrid"></div>
+  </section>
+
+  <!-- ================= HOW RESEARCHED ================= -->
+  <section id="research-section">
+    <details class="research" id="researchDetails">
+      <summary>
+        <span>How this was researched — methodology &amp; conflicts</span>
+        <span class="arrow">▸</span>
+      </summary>
+      <div class="research-body">
+
+        <h4>Model selection</h4>
+        <p>Each laptop is evaluated at its current, publicly listed base or as-tested configuration as of August 2026. Where a product line had multiple recent generations available in search results, the newest shipping model was used and the older one was set aside rather than blended in.</p>
+
+        <h4>Price</h4>
+        <p>Starting/base configuration MSRP as reported by the retailer or outlet at time of review, in USD. Sale prices and coupon-discounted prices were excluded in favor of standard list price.</p>
+
+        <h4>Battery life</h4>
+        <p>Pulled from each outlet's own lab test where available, rather than the manufacturer's marketing claim, since test methodology (brightness, workload, display panel) varies by lab.</p>
+
+        <h4>Performance</h4>
+        <p>Geekbench 6 multi-core CPU score from the specific configuration each outlet tested. This favors CPU throughput; it does not capture sustained/thermal performance, GPU-bound creative work, or Apple Silicon's efficiency-per-watt advantage.</p>
+
+        <h4>Display quality</h4>
+        <p>Unlike the other four criteria, there is no single agreed-upon "display quality" number in the industry. This score (1–10) is an <em>editorial estimate</em> we derived from each laptop's cited resolution, peak brightness, panel type (OLED vs IPS), color gamut coverage, and refresh rate — it is not itself a number found verbatim in a single source. Treat it as a starting point, not a lab measurement.</p>
+
+        <h4>Conflicts we had to resolve</h4>
+        <div class="conflict"><b>Dell XPS 13 naming.</b> Dell discontinued and later revived the "XPS 13" name across very different products between 2024 and 2026 (including a $1,299+ Snapdragon model and a repositioned $599–699 budget model). We used the current 2026 budget-positioned model (DX13260) since it's what's actually for sale today, and flagged this so numbers aren't confused with the older, pricier XPS 13 generation.</div>
+        <div class="conflict"><b>Dell XPS 13 battery life.</b> Tom's Guide measured 14 hours 30 minutes in its own test; Engadget measured 15 hours 56 minutes using PCMark 10's Modern Office benchmark on a different configuration. We display Tom's Guide's figure and note the spread here rather than averaging them into a number neither outlet actually measured.</div>
+        <div class="conflict"><b>ThinkPad X1 Carbon battery life.</b> Multiple reviewers flagged Gen 12's battery as a weak point specifically on the OLED display configuration (ITPro measured 10 hours 29 minutes); a lower-resolution IPS configuration would likely last longer, but we couldn't find a directly tested figure for that specific panel, so the OLED figure is used and labeled.</div>
+        <div class="conflict"><b>Zenbook 14 battery life.</b> Results vary hugely by workload: PCWorld recorded roughly 17 hours under light/low-brightness use but just 3 hours 30 minutes under sustained high load, while Laptop Mag's real-world mixed-use test landed near 16 hours. We used Laptop Mag's real-world figure as the representative number and flagged the wider range.</div>
+
+        <h4>What this comparison does not capture</h4>
+        <p>Keyboard feel, trackpad quality, port selection, repairability, webcam quality, speaker quality, and long-term reliability all came up repeatedly in the underlying reviews but aren't reduced to a number here — they're worth reading the linked reviews for directly.</p>
+
+      </div>
+    </details>
+  </section>
+
+</main>
+
+<footer>
+  Built for general, everyday-use comparison · Prices, specs and test results current as of August 2026 and subject to change · Not a substitute for reading full reviews before buying
+</footer>
+
+<script>
+(function(){
+
+  // ---------------------------------------------------------------
+  // DATA — every numeric value below is sourced; see citations map.
+  // ---------------------------------------------------------------
+  const laptops = [
+    {
+      id: 'air',
+      name: 'MacBook Air 13" M3',
+      price: 1099,          // USD, base 8GB/256GB
+      battery: 15.5,         // hours, real-world tested (wireless web)
+      weight: 2.7,           // lbs
+      perf: 12020,           // Geekbench 6 multi-core
+      display: 7.5,          // editorial estimate, 1-10
+      displayEstimate: true,
+      cites: {
+        price:   [1,2],
+        battery: [1,3],
+        weight:  [4,5],
+        perf:    [6],
+        display: [4]
+      }
+    },
+    {
+      id: 'xps',
+      name: 'Dell XPS 13 (2026)',
+      price: 699,            // USD, base config (DX13260)
+      battery: 14.5,          // hours, Tom's Guide tested
+      weight: 2.2,
+      perf: 7213,
+      display: 8.5,
+      displayEstimate: true,
+      cites: {
+        price:   [7,8],
+        battery: [9],
+        weight:  [7,8,9],
+        perf:    [10],
+        display: [7,11]
+      }
+    },
+    {
+      id: 'x1',
+      name: 'ThinkPad X1 Carbon Gen 12',
+      price: 1499,            // USD, starting config
+      battery: 10.5,           // hours, OLED config as tested
+      weight: 2.42,
+      perf: 11638,
+      display: 9.0,
+      displayEstimate: true,
+      cites: {
+        price:   [12],
+        battery: [13],
+        weight:  [14,15],
+        perf:    [14],
+        display: [15]
+      }
+    },
+    {
+      id: 'zen',
+      name: 'Asus Zenbook 14 OLED',
+      price: 799,             // USD, base Q415 config
+      battery: 16,             // hours, real-world tested
+      weight: 2.82,
+      perf: 12577,
+      display: 8.5,
+      displayEstimate: true,
+      cites: {
+        price:   [16],
+        battery: [16,17],
+        weight:  [17,18],
+        perf:    [17],
+        display: [16,18]
+      }
+    }
+  ];
+
+  const sources = [
+    { n:1,  title:"MacBook Air 13-inch (M3) review — Seeking portable perfection", pub:"Laptop Mag", url:"https://www.laptopmag.com/laptops/macbooks/macbook-air-13-inch-m3", note:"Price, real-world battery test" },
+    { n:2,  title:"MacBook Air 13-inch M3 review: A small wonder", pub:"Tom's Guide", url:"https://www.tomsguide.com/computing/macbooks/macbook-air-13-inch-m3-review", note:"Confirms $1,099 starting price" },
+    { n:3,  title:"MacBook Air (13-inch, M3, 2024) — Tech Specs", pub:"Apple Support", url:"https://support.apple.com/en-us/118551", note:"Manufacturer battery testing methodology" },
+    { n:4,  title:"MacBook Air M3 13 — Specs, reviews and EoL info", pub:"InvGate ITDB", url:"https://invgate.com/itdb/macbook-air-m3-13", note:"Weight, display specs" },
+    { n:5,  title:"Apple MacBook Air M3 13-inch Review UK", pub:"Vivid Repairs", url:"https://www.vividrepairs.co.uk/apple-macbook-air-m3-13-inch-review-uk", note:"Weight confirmation (1.24kg)" },
+    { n:6,  title:"Leaked MacBook Air M3 benchmarks show a 20% increase over M2", pub:"Laptop Mag", url:"https://www.laptopmag.com/laptops/apple-macbook-air-m3-benchmark-performance", note:"Geekbench 6 single/multi-core scores" },
+    { n:7,  title:"Dell's new XPS 13 shocked us all — now available starting at $599", pub:"Windows Central", url:"https://www.windowscentral.com/hardware/dell/xps-13-2026-launch-599", note:"2026 model price, weight" },
+    { n:8,  title:"Dell's new XPS 13 price point makes it a MacBook Neo competitor", pub:"XDA Developers", url:"https://www.xda-developers.com/dell-xps-13-2026-announcement/", note:"Pricing detail, weight (2.2 lb)" },
+    { n:9,  title:"Dell XPS 13 (2026) review: Budget laptops are officially on notice", pub:"Tom's Guide", url:"https://www.tomsguide.com/computing/laptops/dell-xps-13-2026-review", note:"Tested battery life: 14h 30m" },
+    { n:10, title:"The Dell XPS 13 (2026) proves budget laptops don't have to skimp on battery life", pub:"Reviewed.com", url:"https://www.reviewed.com/laptops/content/dell-xps-13-dx13260-review", note:"Geekbench 6 CPU scores (2,078 / 7,213)" },
+    { n:11, title:"Dell XPS 13 (2026) DX13260 — Reviews and Specs", pub:"Notebookcheck", url:"https://www.notebookcheck.net/Dell-XPS-13-2026-DX13260-Reviews-and-Specs.1334015.0.html", note:"Display specs (2.5K, 120Hz)" },
+    { n:12, title:"Lenovo ThinkPad X1 Carbon Gen 12 Review", pub:"StorageReview", url:"https://www.storagereview.com/review/lenovo-thinkpad-x1-carbon-gen-12-review", note:"Starting price ~$1,499" },
+    { n:13, title:"Lenovo ThinkPad X1 Carbon Gen 12 review: High promise left unfulfilled", pub:"ITPro", url:"https://www.itpro.com/hardware/laptops/lenovo-thinkpad-x1-carbon-gen-12-review-high-promise-left-unfulfilled", note:"Tested battery life: 10h 29m (OLED)" },
+    { n:14, title:"Lenovo ThinkPad X1 Carbon (Gen 12) Review: Light in Weight, Heavy in AI", pub:"Tom's Hardware", url:"https://www.tomshardware.com/laptops/ultrabooks-ultraportables/lenovo-thinkpad-x1-carbon-gen-12-review", note:"Weight (2.42 lb), Geekbench 6 scores" },
+    { n:15, title:"Lenovo ThinkPad X1 Carbon Gen 12 — full specs", pub:"InvGate ITDB", url:"https://invgate.com/itdb/thinkpad-x1-carbon-gen-12", note:"Display specs (2.8K OLED, 500 nits)" },
+    { n:16, title:"Asus Zenbook 14 OLED (Q425M) review: a nearly perfect ultraportable laptop", pub:"Laptop Mag", url:"https://www.laptopmag.com/laptops/windows-laptops/asus-zenbook-14-oled-2024-review", note:"Price, real-world battery (~16h), display" },
+    { n:17, title:"Asus Zenbook 14 OLED review: Meteor Lake meets OLED", pub:"PCWorld", url:"https://www.pcworld.com/article/2177124/asus-zenbook-14-oled-review-2.html", note:"Weight (2.82 lb), Geekbench 6, load-dependent battery range" },
+    { n:18, title:"Asus Zenbook 14 OLED (UX3405, 2024) specs and price", pub:"FrontDesk Review (aggregated lab data)", url:"https://frontdeskreview.com/product/laptops/asus-zenbook-14-oled-ux3405/", note:"Cross-lab battery/weight aggregation" }
+  ];
+
+  // ---------------------------------------------------------------
+  // Normalization + scoring
+  // ---------------------------------------------------------------
+  const CRITERIA = [
+    { key:'price',   invert:true  },
+    { key:'battery', invert:false },
+    { key:'weight',  invert:true  },
+    { key:'perf',    invert:false },
+    { key:'display', invert:false }
+  ];
+
+  function normalize(){
+    const ranges = {};
+    CRITERIA.forEach(c=>{
+      const vals = laptops.map(l=>l[c.key]);
+      ranges[c.key] = { min:Math.min(...vals), max:Math.max(...vals) };
+    });
+    laptops.forEach(l=>{
+      l.norm = {};
+      CRITERIA.forEach(c=>{
+        const {min,max} = ranges[c.key];
+        let n = max === min ? 100 : ((l[c.key]-min)/(max-min))*100;
+        if (c.invert) n = 100 - n;
+        l.norm[c.key] = n;
+      });
+    });
+  }
+  normalize();
+
+  function getWeights(){
+    return {
+      price:   +document.getElementById('w-price').value,
+      battery: +document.getElementById('w-battery').value,
+      weight:  +document.getElementById('w-weight').value,
+      perf:    +document.getElementById('w-perf').value,
+      display: +document.getElementById('w-display').value
+    };
+  }
+
+  function computeScores(weights){
+    const total = Object.values(weights).reduce((a,b)=>a+b,0);
+    return laptops.map(l=>{
+      let score = 0;
+      if (total > 0){
+        CRITERIA.forEach(c=>{
+          score += l.norm[c.key] * (weights[c.key]/total);
+        });
+      }
+      return { ...l, score };
+    }).sort((a,b)=>b.score-a.score);
+  }
+
+  const fmtHours = h => h.toFixed(1).replace(/\.0$/,'') + ' hr';
+  const fmtUSD = p => '$' + p.toLocaleString();
+
+  function render(){
+    const weights = getWeights();
+    document.getElementById('val-price').textContent = weights.price;
+    document.getElementById('val-battery').textContent = weights.battery;
+    document.getElementById('val-weight').textContent = weights.weight;
+    document.getElementById('val-perf').textContent = weights.perf;
+    document.getElementById('val-display').textContent = weights.display;
+
+    const total = Object.values(weights).reduce((a,b)=>a+b,0);
+    document.getElementById('weightSum').textContent = total;
+
+    const rankList = document.getElementById('rankList');
+    const emptyState = document.getElementById('emptyState');
+
+    if (total === 0){
+      rankList.style.display = 'none';
+      emptyState.style.display = 'block';
+      return;
+    }
+    emptyState.style.display = 'none';
+    rankList.style.display = 'flex';
+
+    const ranked = computeScores(weights);
+    const topScore = ranked[0].score || 1;
+
+    rankList.innerHTML = ranked.map((l,i)=>`
+      <div class="rank-card ${i===0 ? 'is-first' : ''}">
+        <div class="rank-num">${i+1}</div>
+        <div class="rank-main">
+          <div class="name">${l.name}</div>
+          <div class="score-bar-track"><div class="score-bar-fill" style="width:${(l.score/topScore*100).toFixed(1)}%"></div></div>
+          <div class="sub">${fmtUSD(l.price)} · ${fmtHours(l.battery)} battery · ${l.weight} lb · GB6 ${l.perf.toLocaleString()}</div>
+        </div>
+        <div class="rank-score">${l.score.toFixed(1)}<span>match score</span></div>
+      </div>
+    `).join('');
+  }
+
+  ['w-price','w-battery','w-weight','w-perf','w-display'].forEach(id=>{
+    document.getElementById(id).addEventListener('input', render);
+  });
+
+  document.getElementById('resetBtn').addEventListener('click', ()=>{
+    ['w-price','w-battery','w-weight','w-perf','w-display'].forEach(id=>{
+      document.getElementById(id).value = 20;
+    });
+    render();
+  });
+
+  const PRESETS = {
+    value:  { price:35, battery:15, weight:10, perf:15, display:5 },
+    travel: { price:10, battery:30, weight:35, perf:10, display:5 },
+    power:  { price:10, battery:10, weight:5,  perf:35, display:20 }
+  };
+  document.querySelectorAll('.preset-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const p = PRESETS[btn.dataset.preset];
+      document.getElementById('w-price').value = p.price;
+      document.getElementById('w-battery').value = p.battery;
+      document.getElementById('w-weight').value = p.weight;
+      document.getElementById('w-perf').value = p.perf;
+      document.getElementById('w-display').value = p.display;
+      render();
+    });
+  });
+
+  // simulated brief loading state on first paint
+  const skeletonWrap = document.getElementById('skeletonWrap');
+  skeletonWrap.innerHTML = '<div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>';
+  setTimeout(()=>{
+    skeletonWrap.innerHTML = '';
+    render();
+  }, 420);
+
+  // ---------------------------------------------------------------
+  // Spec table
+  // ---------------------------------------------------------------
+  function citeHtml(nums){
+    return nums.map(n=>`<span class="cell-cite" title="Source ${n}">[${n}]</span>`).join('');
+  }
+
+  const rows = [
+    { label:'Starting price', key:'price', fmt:v=>fmtUSD(v) },
+    { label:'Battery life (real-world tested)', key:'battery', fmt:v=>fmtHours(v) },
+    { label:'Weight', key:'weight', fmt:v=>v+' lb' },
+    { label:'Performance (Geekbench 6 multi-core)', key:'perf', fmt:v=>v.toLocaleString() },
+    { label:'Display quality (editorial, 1–10)', key:'display', fmt:v=>v.toFixed(1), estimate:true }
+  ];
+
+  const tbody = document.getElementById('specTableBody');
+  tbody.innerHTML = rows.map(r=>`
+    <tr>
+      <td>${r.label}</td>
+      ${laptops.map(l=>`
+        <td>
+          <span class="cell-val">${r.fmt(l[r.key])}</span>
+          ${citeHtml(l.cites[r.key])}
+          ${r.estimate ? '<span class="cell-flag">ESTIMATE</span>' : ''}
+        </td>
+      `).join('')}
+    </tr>
+  `).join('');
+
+  // ---------------------------------------------------------------
+  // Sources panel
+  // ---------------------------------------------------------------
+  document.getElementById('sourceCount').textContent = sources.length + ' citations used';
+  document.getElementById('sourcesGrid').innerHTML = sources.map(s=>`
+    <div class="source-card">
+      <span class="num">[${s.n}] ${s.pub}</span>
+      <div class="title">${s.title}</div>
+      <a href="${s.url}" target="_blank" rel="noopener noreferrer">${s.url.replace(/^https?:\/\//,'')}</a>
+      <div class="used-for">Used for: ${s.note}</div>
+    </div>
+  `).join('');
+
+})();
+</script>
+
+</body>
+</html>
