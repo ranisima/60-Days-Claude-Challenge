@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sima — Frontend Developer</title>
+<meta name="description" content="Sima is a Frontend Developer based in Delhi, building calm, thoughtful interfaces with React and JavaScript. Explore her projects Neem and Sattva Talk." />
+<meta name="keywords" content="Sima, Frontend Developer, React Developer, JavaScript Developer, Delhi, Portfolio" />
+<meta name="author" content="Sima" />
+<meta property="og:title" content="Sima — Frontend Developer" />
+<meta property="og:description" content="Frontend Developer based in Delhi, building calm, thoughtful interfaces with React and JavaScript." />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌿</text></svg>" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        colors: {
+          bg: { DEFAULT: '#150E24', light: '#FAF9FC' },
+          surface: { DEFAULT: '#1F1533', light: '#FFFFFF' },
+          border: { DEFAULT: '#31234B', light: '#E7E2F2' },
+          ink: { DEFAULT: '#F3F1FA', light: '#1B1030' },
+          muted: { DEFAULT: '#B8AFD1', light: '#5B527A' },
+          violet: { DEFAULT: '#8B5CF6', dim: '#6D3FD1' },
+          teal: { DEFAULT: '#2DD4BF', dim: '#159C8C' },
+        },
+        fontFamily: {
+          display: ['"Space Grotesk"', 'sans-serif'],
+          body: ['Inter', 'sans-serif'],
+        },
+      },
+    },
+  };
+</script>
+
+<style>
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Inter', sans-serif; }
+  h1, h2, h3, .display { font-family: 'Space Grotesk', sans-serif; }
+
+  ::selection { background: #8B5CF6; color: #fff; }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar { width: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #31234B; border-radius: 999px; }
+  .dark ::-webkit-scrollbar-thumb { background: #31234B; }
+
+  /* Reveal-on-scroll */
+  .reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.in-view { opacity: 1; transform: translateY(0); }
+
+  /* Typing caret */
+  .caret::after {
+    content: '';
+    display: inline-block;
+    width: 2px;
+    height: 1em;
+    background: #2DD4BF;
+    margin-left: 2px;
+    vertical-align: -0.15em;
+    animation: blink 1s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* Skill bar fill */
+  .bar-fill { width: 0%; transition: width 1.1s cubic-bezier(.22,1,.36,1); }
+
+  /* Nav underline */
+  .nav-link { position: relative; }
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    left: 0; bottom: -4px;
+    width: 0%; height: 2px;
+    background: #2DD4BF;
+    transition: width 0.25s ease;
+  }
+  .nav-link.active::after, .nav-link:hover::after { width: 100%; }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { transition: none; opacity: 1; transform: none; }
+    .bar-fill { transition: none; }
+    .caret::after { animation: none; }
+  }
+
+  :focus-visible {
+    outline: 2px solid #2DD4BF;
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  .code-window {
+    background: #0F0A1C;
+    border: 1px solid #31234B;
+  }
+  .dark .code-window { background: #0F0A1C; }
+  .code-window.light-mode { background: #14102A; }
+
+  .project-card {
+    transition: transform 0.35s cubic-bezier(.22,1,.36,1), border-color 0.35s ease;
+  }
+  .project-card:hover {
+    transform: translateY(-6px);
+  }
+</style>
+</head>
+
+<body class="bg-bg-light dark:bg-bg text-ink-light dark:text-ink font-body antialiased transition-colors duration-300">
+
+<a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:bg-teal focus:text-bg focus:px-4 focus:py-2 focus:rounded-lg">Skip to content</a>
+
+<!-- NAV -->
+<header class="fixed top-0 inset-x-0 z-50 backdrop-blur-md bg-bg-light/80 dark:bg-bg/80 border-b border-border-light dark:border-border transition-colors duration-300">
+  <nav class="max-w-6xl mx-auto px-6 md:px-10 h-16 flex items-center justify-between">
+    <a href="#top" class="display font-semibold text-lg tracking-tight">Sima<span class="text-teal">.</span></a>
+
+    <ul class="hidden md:flex items-center gap-9 text-sm font-medium text-muted-light dark:text-muted">
+      <li><a href="#about" class="nav-link text-ink-light dark:text-ink" data-nav>About</a></li>
+      <li><a href="#skills" class="nav-link text-ink-light dark:text-ink" data-nav>Skills</a></li>
+      <li><a href="#projects" class="nav-link text-ink-light dark:text-ink" data-nav>Projects</a></li>
+      <li><a href="#achievements" class="nav-link text-ink-light dark:text-ink" data-nav>Focus</a></li>
+      <li><a href="#contact" class="nav-link text-ink-light dark:text-ink" data-nav>Contact</a></li>
+    </ul>
+
+    <div class="flex items-center gap-3">
+      <button id="theme-toggle" aria-label="Toggle dark and light mode" class="w-10 h-10 grid place-items-center rounded-full border border-border-light dark:border-border hover:border-teal transition-colors">
+        <svg id="icon-sun" class="w-4 h-4 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1.5M12 19.5V21M4.22 4.22l1.06 1.06M18.72 18.72l1.06 1.06M3 12h1.5M19.5 12H21M4.22 19.78l1.06-1.06M18.72 5.28l1.06-1.06M12 7.5a4.5 4.5 0 100 9 4.5 4.5 0 000-9z"/></svg>
+        <svg id="icon-moon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+      </button>
+      <button id="menu-toggle" aria-label="Open menu" aria-expanded="false" class="md:hidden w-10 h-10 grid place-items-center rounded-full border border-border-light dark:border-border">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+  </nav>
+
+  <ul id="mobile-menu" class="md:hidden hidden flex-col gap-1 px-6 pb-4 text-sm font-medium border-t border-border-light dark:border-border">
+    <li><a href="#about" class="block py-2.5" data-nav-mobile>About</a></li>
+    <li><a href="#skills" class="block py-2.5" data-nav-mobile>Skills</a></li>
+    <li><a href="#projects" class="block py-2.5" data-nav-mobile>Projects</a></li>
+    <li><a href="#achievements" class="block py-2.5" data-nav-mobile>Focus</a></li>
+    <li><a href="#contact" class="block py-2.5" data-nav-mobile>Contact</a></li>
+  </ul>
+</header>
+
+<main id="main">
+
+<!-- HERO -->
+<section id="top" class="relative pt-36 pb-24 md:pt-44 md:pb-32 px-6 md:px-10 overflow-hidden">
+  <div class="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-violet/20 blur-[100px] pointer-events-none"></div>
+  <div class="absolute top-40 -left-20 w-72 h-72 rounded-full bg-teal/10 blur-[90px] pointer-events-none"></div>
+
+  <div class="max-w-6xl mx-auto grid md:grid-cols-[1.1fr_0.9fr] gap-14 items-center relative">
+    <div>
+      <p class="text-teal font-medium text-sm mb-4">Based in Delhi, India</p>
+      <h1 class="display text-4xl sm:text-5xl md:text-6xl font-semibold leading-[1.08] tracking-tight">
+        Hi, I'm Sima —<br />
+        I build interfaces that feel <span class="text-violet">calm</span> to use.
+      </h1>
+      <p class="mt-6 text-lg text-muted-light dark:text-muted max-w-xl leading-relaxed">
+        <span id="typing" class="caret"></span>
+      </p>
+
+      <div class="mt-9 flex flex-wrap items-center gap-4">
+        <a href="#projects" class="inline-flex items-center gap-2 bg-violet hover:bg-violet-dim text-white font-medium px-6 py-3 rounded-xl transition-colors">
+          See my work
+        </a>
+        <a href="#contact" class="inline-flex items-center gap-2 border border-border-light dark:border-border hover:border-teal font-medium px-6 py-3 rounded-xl transition-colors">
+          Get in touch
+        </a>
+      </div>
+
+      <div class="mt-10 flex items-center gap-5">
+        <a href="#" aria-label="LinkedIn (add your profile link)" class="w-10 h-10 grid place-items-center rounded-full border border-border-light dark:border-border hover:border-teal hover:text-teal transition-colors">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.61 0 4.28 2.38 4.28 5.47v6.27zM5.34 7.43a2.06 2.06 0 110-4.12 2.06 2.06 0 010 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg>
+        </a>
+        <a href="#" aria-label="GitHub (add your profile link)" class="w-10 h-10 grid place-items-center rounded-full border border-border-light dark:border-border hover:border-teal hover:text-teal transition-colors">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.5 0 12.3c0 5.44 3.44 10.05 8.21 11.68.6.11.82-.27.82-.6 0-.29-.01-1.06-.02-2.08-3.34.75-4.04-1.65-4.04-1.65-.55-1.42-1.34-1.8-1.34-1.8-1.09-.77.08-.75.08-.75 1.21.09 1.84 1.27 1.84 1.27 1.07 1.87 2.8 1.33 3.49 1.02.11-.79.42-1.33.76-1.64-2.66-.31-5.47-1.36-5.47-6.05 0-1.34.46-2.43 1.22-3.29-.12-.31-.53-1.56.12-3.25 0 0 1-.33 3.3 1.25a11.2 11.2 0 016 0c2.28-1.58 3.29-1.25 3.29-1.25.65 1.69.24 2.94.12 3.25.76.86 1.22 1.95 1.22 3.29 0 4.7-2.81 5.74-5.49 6.04.43.38.81 1.13.81 2.28 0 1.65-.01 2.98-.01 3.38 0 .33.22.72.83.6C20.56 22.34 24 17.74 24 12.3 24 5.5 18.63 0 12 0z"/></svg>
+        </a>
+        <a href="mailto:simarni18@gmail.com" aria-label="Email Sima" class="w-10 h-10 grid place-items-center rounded-full border border-border-light dark:border-border hover:border-teal hover:text-teal transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="code-window rounded-2xl p-5 shadow-2xl shadow-violet/10 text-[13px] leading-relaxed">
+      <div class="flex items-center gap-1.5 mb-4">
+        <span class="w-3 h-3 rounded-full bg-[#FF5F57]"></span>
+        <span class="w-3 h-3 rounded-full bg-[#FEBC2E]"></span>
+        <span class="w-3 h-3 rounded-full bg-[#28C840]"></span>
+        <span class="ml-3 text-muted text-xs">sima.jsx</span>
+      </div>
+      <pre class="font-body overflow-x-auto"><code><span class="text-[#7B7295]">01</span>  <span class="text-violet">const</span> <span class="text-teal">sima</span> = {
+<span class="text-[#7B7295]">02</span>    role: <span class="text-[#F5C877]">'Frontend Developer'</span>,
+<span class="text-[#7B7295]">03</span>    stack: [<span class="text-[#F5C877]">'React'</span>, <span class="text-[#F5C877]">'JavaScript'</span>],
+<span class="text-[#7B7295]">04</span>    based: <span class="text-[#F5C877]">'Delhi, India'</span>,
+<span class="text-[#7B7295]">05</span>    building: [
+<span class="text-[#7B7295]">06</span>      <span class="text-[#F5C877]">'Neem'</span>,
+<span class="text-[#7B7295]">07</span>      <span class="text-[#F5C877]">'Sattva Talk'</span>
+<span class="text-[#7B7295]">08</span>    ]
+<span class="text-[#7B7295]">09</span>  };</code></pre>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" class="py-24 px-6 md:px-10 border-t border-border-light dark:border-border">
+  <div class="max-w-6xl mx-auto grid md:grid-cols-[0.4fr_0.6fr] gap-12">
+    <div class="reveal">
+      <h2 class="display text-3xl font-semibold tracking-tight">About</h2>
+    </div>
+    <div class="reveal max-w-2xl">
+      <p class="text-lg leading-relaxed text-muted-light dark:text-muted">
+        I'm a frontend developer based in Delhi, working mainly with React and JavaScript to turn ideas into interfaces people actually enjoy using. I care about the small details — how a page feels to scroll through, how quickly it responds, how clear it is at a glance.
+      </p>
+      <p class="mt-5 text-lg leading-relaxed text-muted-light dark:text-muted">
+        Right now I'm building two projects that reflect that mindset: <span class="text-ink-light dark:text-ink font-medium">Neem</span>, centered on nature, and <span class="text-ink-light dark:text-ink font-medium">Sattva Talk</span>, centered on mindfulness — both are early proof that I'd rather build a handful of things well than rush a dozen.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills" class="py-24 px-6 md:px-10 border-t border-border-light dark:border-border bg-surface-light/40 dark:bg-surface/40">
+  <div class="max-w-6xl mx-auto">
+    <h2 class="display text-3xl font-semibold tracking-tight reveal">Skills</h2>
+    <p class="mt-3 text-muted-light dark:text-muted reveal">What I reach for when I'm building.</p>
+
+    <div class="mt-12 grid md:grid-cols-2 gap-x-16 gap-y-8">
+      <div class="reveal">
+        <div class="flex justify-between mb-2 text-sm font-medium">
+          <span>React</span><span class="text-muted-light dark:text-muted" data-percent="85">85%</span>
+        </div>
+        <div class="h-2 rounded-full bg-border-light dark:bg-border overflow-hidden">
+          <div class="bar-fill h-full rounded-full bg-violet" data-fill="85"></div>
+        </div>
+      </div>
+      <div class="reveal">
+        <div class="flex justify-between mb-2 text-sm font-medium">
+          <span>JavaScript</span><span class="text-muted-light dark:text-muted" data-percent="85">85%</span>
+        </div>
+        <div class="h-2 rounded-full bg-border-light dark:bg-border overflow-hidden">
+          <div class="bar-fill h-full rounded-full bg-teal" data-fill="85"></div>
+        </div>
+      </div>
+      <div class="reveal">
+        <div class="flex justify-between mb-2 text-sm font-medium">
+          <span>HTML5 &amp; CSS3</span><span class="text-muted-light dark:text-muted" data-percent="80">80%</span>
+        </div>
+        <div class="h-2 rounded-full bg-border-light dark:bg-border overflow-hidden">
+          <div class="bar-fill h-full rounded-full bg-violet" data-fill="80"></div>
+        </div>
+      </div>
+      <div class="reveal">
+        <div class="flex justify-between mb-2 text-sm font-medium">
+          <span>Tailwind CSS</span><span class="text-muted-light dark:text-muted" data-percent="75">75%</span>
+        </div>
+        <div class="h-2 rounded-full bg-border-light dark:bg-border overflow-hidden">
+          <div class="bar-fill h-full rounded-full bg-teal" data-fill="75"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-14 reveal">
+      <p class="text-sm font-medium text-muted-light dark:text-muted mb-4">Tools &amp; ways of working</p>
+      <div class="flex flex-wrap gap-2.5">
+        <span class="px-3.5 py-1.5 rounded-full text-sm border border-border-light dark:border-border">VS Code</span>
+        <span class="px-3.5 py-1.5 rounded-full text-sm border border-border-light dark:border-border">Git &amp; GitHub</span>
+        <span class="px-3.5 py-1.5 rounded-full text-sm border border-border-light dark:border-border">Chrome DevTools</span>
+        <span class="px-3.5 py-1.5 rounded-full text-sm border border-border-light dark:border-border">Figma</span>
+        <span class="px-3.5 py-1.5 rounded-full text-sm border border-border-light dark:border-border">Responsive Design</span>
+        <span class="px-3.5 py-1.5 rounded-full text-sm border border-border-light dark:border-border">Communication</span>
+        <span class="px-3.5 py-1.5 rounded-full text-sm border border-border-light dark:border-border">Attention to Detail</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects" class="py-24 px-6 md:px-10 border-t border-border-light dark:border-border">
+  <div class="max-w-6xl mx-auto">
+    <h2 class="display text-3xl font-semibold tracking-tight reveal">Projects</h2>
+    <p class="mt-3 text-muted-light dark:text-muted reveal max-w-xl">Two builds in progress, each with a different kind of calm in mind.</p>
+
+    <div class="mt-12 grid md:grid-cols-2 gap-7">
+
+      <article class="project-card reveal rounded-2xl border border-border-light dark:border-border p-7 bg-surface-light dark:bg-surface">
+        <div class="w-11 h-11 rounded-xl bg-teal/15 grid place-items-center text-xl mb-5">🌿</div>
+        <h3 class="display text-xl font-semibold">Neem</h3>
+        <p class="mt-2.5 text-muted-light dark:text-muted leading-relaxed">
+          A nature-focused web project exploring how plant life and sustainable habits can be presented in a way that feels inviting rather than instructional.
+        </p>
+        <div class="mt-5 flex flex-wrap gap-2">
+          <span class="text-xs px-2.5 py-1 rounded-full bg-teal/10 text-teal font-medium">React</span>
+          <span class="text-xs px-2.5 py-1 rounded-full bg-teal/10 text-teal font-medium">JavaScript</span>
+          <span class="text-xs px-2.5 py-1 rounded-full bg-teal/10 text-teal font-medium">Tailwind CSS</span>
+        </div>
+      </article>
+
+      <article class="project-card reveal rounded-2xl border border-border-light dark:border-border p-7 bg-surface-light dark:bg-surface">
+        <div class="w-11 h-11 rounded-xl bg-violet/15 grid place-items-center text-xl mb-5">🧘</div>
+        <h3 class="display text-xl font-semibold">Sattva Talk</h3>
+        <p class="mt-2.5 text-muted-light dark:text-muted leading-relaxed">
+          A meditation and mindfulness project designed around a slow, uncluttered interface — built to help people pause rather than scroll.
+        </p>
+        <div class="mt-5 flex flex-wrap gap-2">
+          <span class="text-xs px-2.5 py-1 rounded-full bg-violet/10 text-violet font-medium">React</span>
+          <span class="text-xs px-2.5 py-1 rounded-full bg-violet/10 text-violet font-medium">JavaScript</span>
+          <span class="text-xs px-2.5 py-1 rounded-full bg-violet/10 text-violet font-medium">Tailwind CSS</span>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ACHIEVEMENTS / FOCUS -->
+<section id="achievements" class="py-24 px-6 md:px-10 border-t border-border-light dark:border-border bg-surface-light/40 dark:bg-surface/40">
+  <div class="max-w-6xl mx-auto">
+    <h2 class="display text-3xl font-semibold tracking-tight reveal">Currently</h2>
+    <p class="mt-3 text-muted-light dark:text-muted reveal max-w-xl">Where my time and attention are going right now.</p>
+
+    <div class="mt-12 grid sm:grid-cols-3 gap-6">
+      <div class="reveal rounded-2xl border border-border-light dark:border-border p-6">
+        <p class="text-3xl font-semibold text-teal display">2</p>
+        <p class="mt-2 text-sm text-muted-light dark:text-muted">Original projects in active development — Neem and Sattva Talk.</p>
+      </div>
+      <div class="reveal rounded-2xl border border-border-light dark:border-border p-6">
+        <p class="text-3xl font-semibold text-violet display">React</p>
+        <p class="mt-2 text-sm text-muted-light dark:text-muted">Deepening component architecture and state management skills.</p>
+      </div>
+      <div class="reveal rounded-2xl border border-border-light dark:border-border p-6">
+        <p class="text-3xl font-semibold text-teal display">UI</p>
+        <p class="mt-2 text-sm text-muted-light dark:text-muted">Studying interface design to build more intuitive, calmer products.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" class="py-24 px-6 md:px-10 border-t border-border-light dark:border-border">
+  <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-14">
+    <div class="reveal">
+      <h2 class="display text-3xl font-semibold tracking-tight">Let's talk</h2>
+      <p class="mt-4 text-muted-light dark:text-muted leading-relaxed max-w-md">
+        Have a project, a role, or just a question about Neem or Sattva Talk? My inbox is open.
+      </p>
+
+      <div class="mt-8 space-y-4">
+        <a href="mailto:simarni18@gmail.com" class="flex items-center gap-3 group">
+          <span class="w-10 h-10 rounded-full border border-border-light dark:border-border grid place-items-center group-hover:border-teal transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          </span>
+          <span class="group-hover:text-teal transition-colors">simarni18@gmail.com</span>
+        </a>
+        <div class="flex items-center gap-3">
+          <span class="w-10 h-10 rounded-full border border-border-light dark:border-border grid place-items-center">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          </span>
+          <span>Delhi, India</span>
+        </div>
+      </div>
+    </div>
+
+    <form id="contact-form" class="reveal space-y-4" novalidate>
+      <div>
+        <label for="name" class="block text-sm font-medium mb-1.5">Name</label>
+        <input type="text" id="name" name="name" required class="w-full rounded-xl border border-border-light dark:border-border bg-transparent px-4 py-3 text-sm focus:border-teal outline-none transition-colors" placeholder="Your name" />
+        <p class="error-text hidden text-xs text-red-400 mt-1">Please enter your name.</p>
+      </div>
+      <div>
+        <label for="email" class="block text-sm font-medium mb-1.5">Email</label>
+        <input type="email" id="email" name="email" required class="w-full rounded-xl border border-border-light dark:border-border bg-transparent px-4 py-3 text-sm focus:border-teal outline-none transition-colors" placeholder="you@example.com" />
+        <p class="error-text hidden text-xs text-red-400 mt-1">Please enter a valid email.</p>
+      </div>
+      <div>
+        <label for="message" class="block text-sm font-medium mb-1.5">Message</label>
+        <textarea id="message" name="message" required rows="4" class="w-full rounded-xl border border-border-light dark:border-border bg-transparent px-4 py-3 text-sm focus:border-teal outline-none transition-colors resize-none" placeholder="What would you like to say?"></textarea>
+        <p class="error-text hidden text-xs text-red-400 mt-1">Please enter a message.</p>
+      </div>
+      <button type="submit" class="w-full bg-violet hover:bg-violet-dim text-white font-medium py-3 rounded-xl transition-colors">
+        Send message
+      </button>
+      <p id="form-status" class="text-sm text-teal hidden">Opening your email app…</p>
+    </form>
+  </div>
+</section>
+
+</main>
+
+<footer class="border-t border-border-light dark:border-border py-8 px-6 md:px-10">
+  <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-muted-light dark:text-muted">
+    <p>© <span id="year"></span> Sima. Built with React in mind, coded by hand.</p>
+    <a href="#top" class="hover:text-teal transition-colors">Back to top ↑</a>
+  </div>
+</footer>
+
+<script>
+  // Theme toggle
+  const root = document.documentElement;
+  const sunIcon = document.getElementById('icon-sun');
+  const moonIcon = document.getElementById('icon-moon');
+  const themeToggle = document.getElementById('theme-toggle');
+
+  function applyTheme(theme) {
+    if (theme === 'light') {
+      root.classList.remove('dark');
+      sunIcon.classList.remove('hidden');
+      moonIcon.classList.add('hidden');
+    } else {
+      root.classList.add('dark');
+      sunIcon.classList.add('hidden');
+      moonIcon.classList.remove('hidden');
+    }
+  }
+
+  const savedTheme = localStorage.getItem('sima-theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(savedTheme || (prefersDark ? 'dark' : 'dark'));
+
+  themeToggle.addEventListener('click', () => {
+    const isDark = root.classList.contains('dark');
+    const next = isDark ? 'light' : 'dark';
+    applyTheme(next);
+    localStorage.setItem('sima-theme', next);
+  });
+
+  // Mobile menu
+  const menuToggle = document.getElementById('menu-toggle');
+  const mobileMenu = document.getElementById('mobile-menu');
+  menuToggle.addEventListener('click', () => {
+    const isOpen = !mobileMenu.classList.contains('hidden');
+    mobileMenu.classList.toggle('hidden');
+    mobileMenu.classList.toggle('flex');
+    menuToggle.setAttribute('aria-expanded', String(!isOpen));
+  });
+  document.querySelectorAll('[data-nav-mobile]').forEach(link => {
+    link.addEventListener('click', () => {
+      mobileMenu.classList.add('hidden');
+      mobileMenu.classList.remove('flex');
+      menuToggle.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  // Typing animation
+  const typingEl = document.getElementById('typing');
+  const phrases = [
+    'I build with React and JavaScript.',
+    'I care about clean, calm interfaces.',
+    'Currently building Neem and Sattva Talk.'
+  ];
+  let phraseIndex = 0, charIndex = 0, deleting = false;
+
+  function typeLoop() {
+    const current = phrases[phraseIndex];
+    if (!deleting) {
+      charIndex++;
+      typingEl.textContent = current.slice(0, charIndex);
+      if (charIndex === current.length) {
+        deleting = true;
+        setTimeout(typeLoop, 1400);
+        return;
+      }
+    } else {
+      charIndex--;
+      typingEl.textContent = current.slice(0, charIndex);
+      if (charIndex === 0) {
+        deleting = false;
+        phraseIndex = (phraseIndex + 1) % phrases.length;
+      }
+    }
+    setTimeout(typeLoop, deleting ? 30 : 55);
+  }
+  typeLoop();
+
+  // Reveal on scroll + skill bar fill
+  const revealEls = document.querySelectorAll('.reveal');
+  const barFills = document.querySelectorAll('.bar-fill');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in-view');
+        if (entry.target.classList.contains('bar-fill')) {
+          entry.target.style.width = entry.target.dataset.fill + '%';
+        }
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  revealEls.forEach(el => observer.observe(el));
+  barFills.forEach(el => observer.observe(el));
+
+  // Active nav highlighting
+  const sections = ['about', 'skills', 'projects', 'achievements', 'contact'].map(id => document.getElementById(id));
+  const navLinks = document.querySelectorAll('[data-nav]');
+
+  const navObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const id = entry.target.id;
+      const link = document.querySelector(`[data-nav][href="#${id}"]`);
+      if (!link) return;
+      if (entry.isIntersecting) {
+        navLinks.forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
+      }
+    });
+  }, { threshold: 0.4, rootMargin: '-80px 0px -60% 0px' });
+
+  sections.forEach(sec => { if (sec) navObserver.observe(sec); });
+
+  // Contact form -> mailto (no backend needed)
+  const form = document.getElementById('contact-form');
+  const statusEl = document.getElementById('form-status');
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    let valid = true;
+    const nameEl = document.getElementById('name');
+    const emailEl = document.getElementById('email');
+    const messageEl = document.getElementById('message');
+
+    [nameEl, emailEl, messageEl].forEach(el => {
+      const errorEl = el.parentElement.querySelector('.error-text');
+      const isEmail = el.type === 'email';
+      const emailValid = !isEmail || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value);
+      if (!el.value.trim() || !emailValid) {
+        errorEl.classList.remove('hidden');
+        el.classList.add('border-red-400');
+        valid = false;
+      } else {
+        errorEl.classList.add('hidden');
+        el.classList.remove('border-red-400');
+      }
+    });
+
+    if (!valid) return;
+
+    const subject = encodeURIComponent(`Portfolio message from ${nameEl.value}`);
+    const body = encodeURIComponent(`${messageEl.value}\n\n— ${nameEl.value} (${emailEl.value})`);
+    statusEl.classList.remove('hidden');
+    window.location.href = `mailto:simarni18@gmail.com?subject=${subject}&body=${body}`;
+  });
+
+  document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+
+</body>
+</html>
